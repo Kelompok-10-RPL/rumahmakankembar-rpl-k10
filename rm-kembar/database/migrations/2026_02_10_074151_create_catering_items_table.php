@@ -18,13 +18,13 @@ return new class extends Migration
                   ->constrained()
                   ->cascadeOnDelete();
     
-            $table->foreignId('menu_id')
-                  ->constrained()
-                  ->restrictOnDelete();
-    
+            $table->foreignId('menu_id')->nullable()->constrained('menus')->nullOnDelete();
+            $table->string('menu_name', 150);
             $table->integer('qty');
-            $table->integer('price');
-            $table->integer('subtotal');
+            $table->decimal('price', 12, 2);
+            $table->decimal('subtotal', 12, 2);
+            $table->string('notes')->nullable();
+            $table->json('meta')->nullable();
     
             $table->timestamps();
         });

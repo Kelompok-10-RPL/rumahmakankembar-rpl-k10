@@ -13,10 +13,20 @@ return new class extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('price');
+            $table->foreignId('category_id')->constrained('menu_categories')->cascadeOnDelete();
+            $table->string('name', 150);
+            $table->string('slug', 150)->unique();
             $table->text('description')->nullable();
+            $table->decimal('price', 12, 2);
+            $table->string('image')->nullable();
+            $table->integer('stock')->default(0);
+            $table->integer('low_stock_threshold')->nullable();
             $table->boolean('is_available')->default(true);
+            $table->boolean('is_for_dine_in')->default(true);
+            $table->boolean('is_for_catering')->default(true);
+            $table->integer('sort_order')->default(0);
+            $table->json('meta')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

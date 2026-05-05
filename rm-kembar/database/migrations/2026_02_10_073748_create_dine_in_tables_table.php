@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('dine_in_tables', function (Blueprint $table) {
             $table->id();
-            $table->integer('table_number')->unique();
+            $table->string('table_number', 10)->unique();
             $table->integer('capacity');
-            $table->enum('status', ['available', 'occupied', 'reserved'])
-                  ->default('available');
+            $table->string('status', 20)->default('kosong');
+            $table->timestamp('locked_at')->nullable();
+            $table->unsignedBigInteger('locked_by_order_id')->nullable()->index();
+            $table->string('qr_code_path')->nullable();
+            $table->string('location_label', 100)->nullable();
+            $table->string('notes')->nullable();
+            $table->json('meta')->nullable();
             $table->timestamps();
         });
     }
