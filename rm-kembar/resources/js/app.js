@@ -2,6 +2,7 @@ import './bootstrap';
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
+import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 
 createInertiaApp({
@@ -11,7 +12,7 @@ createInertiaApp({
         return pages[`./Pages/${name}.jsx`];
     },
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(createElement(App, props));
     },
     progress: {
         color: '#b91c1c',
