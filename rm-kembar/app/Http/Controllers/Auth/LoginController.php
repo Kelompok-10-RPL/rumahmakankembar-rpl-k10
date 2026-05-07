@@ -27,6 +27,12 @@ class LoginController extends Controller
             return back()->withErrors(['email' => 'Email atau password tidak cocok.'])->onlyInput('email');
         }
 
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+
+            return back()->withErrors(['email' => 'Akun ini sedang tidak aktif.'])->onlyInput('email');
+        }
+
         $request->session()->regenerate();
 
         return match (Auth::user()->role) {

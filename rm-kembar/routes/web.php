@@ -3,7 +3,10 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TableController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Customer\AccountController;
@@ -39,6 +42,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/akun/riwayat', [AccountController::class, 'history'])->name('account.history');
+    Route::post('/akun/pesanan/{order}/cancel', [AccountController::class, 'cancelOrder'])->name('account.orders.cancel');
 });
 
 Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')->group(function () {
@@ -52,6 +56,14 @@ Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')
     Route::get('/stok-meja', [TableController::class, 'index'])->name('tables.index');
     Route::post('/stok-meja', [TableController::class, 'store'])->name('tables.store');
     Route::put('/stok-meja/{table}', [TableController::class, 'update'])->name('tables.update');
+    Route::get('/pengguna', [UserController::class, 'index'])->name('users.index');
+    Route::post('/pengguna', [UserController::class, 'store'])->name('users.store');
+    Route::put('/pengguna/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/pengguna/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/pengaturan', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/pengaturan', [SettingController::class, 'update'])->name('settings.update');
+    Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/laporan/export', [ReportController::class, 'export'])->name('reports.export');
 });
 
 Route::get('/kitchen', KitchenController::class)->middleware(['auth', 'role:kitchen,admin,owner'])->name('kitchen.index');

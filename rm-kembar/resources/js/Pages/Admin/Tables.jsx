@@ -57,6 +57,9 @@ function TableCard({ table }) {
                 <input className="rounded-md border border-zinc-300 px-3 py-2" value={data.location_label} onChange={(e) => setData('location_label', e.target.value)} />
                 <input className="rounded-md border border-zinc-300 px-3 py-2" value={data.notes} onChange={(e) => setData('notes', e.target.value)} />
             </div>
+            <a className="mt-3 block break-all rounded-md bg-zinc-50 p-2 text-xs font-semibold text-red-700" href={table.order_url} target="_blank" rel="noreferrer">
+                {table.order_url}
+            </a>
             <button disabled={processing} className="mt-3 rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">Update Meja</button>
         </form>
     );

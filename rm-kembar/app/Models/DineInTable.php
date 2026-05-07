@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DineInTable extends Model
 {
+    protected $appends = ['order_url'];
+
     protected $fillable = [
         'table_number',
         'capacity',
@@ -33,5 +35,10 @@ class DineInTable extends Model
     public function lockedByOrder(): BelongsTo
     {
         return $this->belongsTo(Order::class, 'locked_by_order_id');
+    }
+
+    public function getOrderUrlAttribute(): string
+    {
+        return route('menu.index', ['table' => $this->table_number]);
     }
 }

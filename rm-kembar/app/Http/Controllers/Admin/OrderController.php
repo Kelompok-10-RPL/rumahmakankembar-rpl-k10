@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\DineInTable;
 use App\Models\Order;
 use App\Models\StockLog;
 use Illuminate\Http\RedirectResponse;
@@ -19,13 +18,19 @@ class OrderController extends Controller
         $orders = Order::query()
             ->with(['user', 'table', 'items', 'payments'])
             ->when($request->query('status'), fn ($query, $status) => $query->where('status', $status))
+            ->when($request->query('q'), function ($query, $q) {
+                $query->where(function ($query) use ($q) {
+                    $query->where('unique_code', 'like', "%{$q}%")
+                        ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$q}%")->orWhere('phone', 'like', "%{$q}%"));
+                });
+            })
             ->latest()
             ->paginate(12)
             ->withQueryString();
 
         return Inertia::render('Admin/Orders', [
             'orders' => $orders,
-            'filters' => $request->only('status'),
+            'filters' => $request->only('status', 'q'),
         ]);
     }
 
