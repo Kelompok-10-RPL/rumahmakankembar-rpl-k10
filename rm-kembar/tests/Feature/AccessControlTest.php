@@ -63,6 +63,18 @@ class AccessControlTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_login_rejects_wrong_password(): void
+    {
+        $this->from(route('login'))->post(route('login.store'), [
+            'email' => 'admin@rmkembar.test',
+            'password' => 'salah123',
+        ])
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
     public function test_login_redirects_staff_to_their_dashboard(): void
     {
         $this->post(route('login.store'), [
@@ -76,5 +88,21 @@ class AccessControlTest extends TestCase
             'email' => 'kitchen@rmkembar.test',
             'password' => 'password',
         ])->assertRedirect(route('kitchen.index'));
+    }
+
+    public function test_authenticated_user_can_logout(): void
+    {
+        $admin = User::query()->where('email', 'admin@rmkembar.test')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->post(route('logout'))
+            ->assertRedirect(route('home'));
+
+        $this->assertGuest();
+    }
+
+    public function test_guest_cannot_logout_as_active_user(): void
+    {
+        $this->post(route('logout'))->assertRedirect(route('login'));
     }
 }

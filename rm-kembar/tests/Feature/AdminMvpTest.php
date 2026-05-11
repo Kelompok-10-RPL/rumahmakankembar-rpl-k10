@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminMvpTest extends TestCase
@@ -43,6 +44,17 @@ class AdminMvpTest extends TestCase
 
         $this->actingAs($this->admin)->get(route('admin.dashboard'))->assertOk();
         $this->actingAs($this->admin)->get(route('admin.orders.index', ['q' => $order->unique_code]))->assertOk();
+    }
+
+    public function test_admin_order_search_with_unknown_keyword_has_no_results(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('admin.orders.index', ['q' => 'ORDER-TIDAK-ADA']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Orders')
+                ->has('orders.data', 0)
+            );
     }
 
     public function test_admin_can_manage_menu_and_stock_logs(): void
@@ -92,6 +104,43 @@ class AdminMvpTest extends TestCase
         $this->assertSoftDeleted('menus', ['id' => $menu->id]);
     }
 
+    public function test_admin_cannot_create_menu_with_empty_required_data(): void
+    {
+        $this->actingAs($this->admin)
+            ->from(route('admin.menu.index'))
+            ->post(route('admin.menu.store'), [])
+            ->assertRedirect(route('admin.menu.index'))
+            ->assertSessionHasErrors(['category_id', 'name', 'price', 'stock']);
+
+        $this->assertDatabaseMissing('menus', ['name' => '']);
+    }
+
+    public function test_admin_cannot_update_menu_with_negative_stock(): void
+    {
+        $category = MenuCategory::query()->firstOrFail();
+        $menu = Menu::query()->firstOrFail();
+        $oldStock = $menu->stock;
+
+        $this->actingAs($this->admin)
+            ->from(route('admin.menu.index'))
+            ->put(route('admin.menu.update', $menu), [
+                'category_id' => $category->id,
+                'name' => $menu->name,
+                'description' => $menu->description,
+                'price' => $menu->price,
+                'stock' => -5,
+                'low_stock_threshold' => $menu->low_stock_threshold,
+                'sort_order' => $menu->sort_order,
+                'is_available' => true,
+                'is_for_dine_in' => true,
+                'is_for_catering' => true,
+            ])
+            ->assertRedirect(route('admin.menu.index'))
+            ->assertSessionHasErrors('stock');
+
+        $this->assertSame($oldStock, $menu->fresh()->stock);
+    }
+
     public function test_admin_can_manage_tables_and_table_order_url_is_exposed(): void
     {
         $this->actingAs($this->admin)->post(route('admin.tables.store'), [
@@ -118,6 +167,25 @@ class AdminMvpTest extends TestCase
         $this->assertSame('kosong', $table->status);
         $this->assertNull($table->locked_at);
         $this->assertNull($table->locked_by_order_id);
+    }
+
+    public function test_admin_cannot_update_table_with_invalid_capacity(): void
+    {
+        $table = DineInTable::query()->firstOrFail();
+        $oldCapacity = $table->capacity;
+
+        $this->actingAs($this->admin)
+            ->from(route('admin.tables.index'))
+            ->put(route('admin.tables.update', $table), [
+                'capacity' => 0,
+                'status' => 'kosong',
+                'location_label' => $table->location_label,
+                'notes' => $table->notes,
+            ])
+            ->assertRedirect(route('admin.tables.index'))
+            ->assertSessionHasErrors('capacity');
+
+        $this->assertSame($oldCapacity, $table->fresh()->capacity);
     }
 
     public function test_admin_order_status_flow_marks_paid_arrived_preparing_and_completed(): void
@@ -176,6 +244,28 @@ class AdminMvpTest extends TestCase
         ]);
     }
 
+    public function test_admin_order_transition_rejects_unknown_action(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'phone' => '628166600009']);
+        $order = Order::create([
+            'unique_code' => Order::generateCode($customer),
+            'user_id' => $customer->id,
+            'order_type' => 'dine_in',
+            'subtotal' => 10000,
+            'tax_rate' => 0.11,
+            'tax_amount' => 1100,
+            'total_price' => 11100,
+            'payment_status' => 'unpaid',
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.orders.transition', [$order, 'selesai123']))
+            ->assertNotFound();
+
+        $this->assertSame('pending', $order->fresh()->status);
+    }
+
     public function test_admin_can_cancel_order_and_release_table(): void
     {
         $customer = User::factory()->create(['role' => 'customer', 'phone' => '628166600003']);
@@ -201,6 +291,31 @@ class AdminMvpTest extends TestCase
 
         $this->assertSame('cancelled', $order->fresh()->status);
         $this->assertSame('kosong', $table->fresh()->status);
+    }
+
+    public function test_admin_cannot_cancel_completed_order(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'phone' => '628166600010']);
+        $order = Order::create([
+            'unique_code' => Order::generateCode($customer),
+            'user_id' => $customer->id,
+            'order_type' => 'dine_in',
+            'subtotal' => 10000,
+            'tax_rate' => 0.11,
+            'tax_amount' => 1100,
+            'total_price' => 11100,
+            'payment_status' => 'paid',
+            'status' => 'completed',
+            'completed_at' => now(),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->from(route('admin.orders.index'))
+            ->post(route('admin.orders.transition', [$order, 'cancel']))
+            ->assertRedirect(route('admin.orders.index'))
+            ->assertSessionHasErrors('order');
+
+        $this->assertSame('completed', $order->fresh()->status);
     }
 
     public function test_kitchen_display_shows_active_kitchen_orders(): void
@@ -259,11 +374,72 @@ class AdminMvpTest extends TestCase
         $this->assertSame(0.10, Setting::valueFor('tax_rate'));
         $this->assertSame(45, Setting::valueFor('auto_cancel_minutes'));
 
+        $customer = User::factory()->create(['role' => 'customer', 'phone' => '628166600006']);
+        Order::create([
+            'unique_code' => Order::generateCode($customer),
+            'user_id' => $customer->id,
+            'order_type' => 'dine_in',
+            'subtotal' => 10000,
+            'tax_rate' => 0.10,
+            'tax_amount' => 1000,
+            'total_price' => 11000,
+            'payment_status' => 'paid',
+            'status' => 'completed',
+        ]);
+
         $this->actingAs($this->admin)->get(route('admin.reports.index'))->assertOk();
         $this->actingAs($this->admin)->get(route('admin.reports.export'))->assertOk();
 
         $this->actingAs($this->admin)->delete(route('admin.users.destroy', $staff))->assertRedirect();
         $this->assertSoftDeleted('users', ['id' => $staff->id]);
+    }
+
+    public function test_admin_cannot_create_user_with_duplicate_email(): void
+    {
+        $existing = User::query()->where('email', 'admin@rmkembar.test')->firstOrFail();
+
+        $this->actingAs($this->admin)
+            ->from(route('admin.users.index'))
+            ->post(route('admin.users.store'), [
+                'name' => 'Duplikat Email',
+                'email' => $existing->email,
+                'phone' => '628166600007',
+                'role' => 'customer',
+                'address' => 'Jl. Duplikat',
+                'password' => 'password',
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('admin.users.index'))
+            ->assertSessionHasErrors('email');
+
+        $this->assertDatabaseMissing('users', ['phone' => '628166600007']);
+    }
+
+    public function test_admin_settings_reject_negative_numeric_values(): void
+    {
+        $this->actingAs($this->admin)
+            ->from(route('admin.settings.index'))
+            ->put(route('admin.settings.update'), [
+                'settings' => [
+                    'tax_rate' => '-10',
+                ],
+            ])
+            ->assertRedirect(route('admin.settings.index'))
+            ->assertSessionHasErrors('settings.tax_rate');
+
+        $this->assertSame(0.11, Setting::valueFor('tax_rate'));
+    }
+
+    public function test_admin_report_export_rejects_empty_date_range(): void
+    {
+        $this->actingAs($this->admin)
+            ->from(route('admin.reports.index'))
+            ->get(route('admin.reports.export', [
+                'from' => now()->addYear()->toDateString(),
+                'to' => now()->addYear()->addDay()->toDateString(),
+            ]))
+            ->assertRedirect(route('admin.reports.index'))
+            ->assertSessionHasErrors('report');
     }
 
     public function test_admin_cannot_delete_their_own_account(): void

@@ -66,8 +66,8 @@ npm run build
 
 At the time this documentation was written:
 
-- Tests: 25 passing
-- Assertions: 107 passing
+- Tests: 44 passing
+- Assertions: 218 passing
 
 The suite covers the current implemented MVP. It does not cover future-only features such as Midtrans, WhatsApp notifications, catering UI, ratings UI, generated QR image files, or WebSocket realtime updates.
 
@@ -441,4 +441,3 @@ Prefer relative dates like `now()->addDay()` for future reservations and `now()-
 ## 11. Current Limitations
 
 The current tests mostly assert backend behavior and page availability. They do not use browser automation, so they do not verify visual layout, JavaScript interactions in a real browser, or accessibility. For frontend-heavy work later, consider adding browser tests with Laravel Dusk or Playwright.
-

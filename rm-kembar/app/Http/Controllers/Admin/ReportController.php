@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +37,7 @@ class ReportController extends Controller
         ]);
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request): RedirectResponse|StreamedResponse
     {
         [$from, $to] = $this->dateRange($request);
         $orders = Order::query()
@@ -44,6 +45,10 @@ class ReportController extends Controller
             ->whereBetween('created_at', [$from, $to])
             ->latest()
             ->get();
+
+        if ($orders->isEmpty()) {
+            return back()->withErrors(['report' => 'Data tidak tersedia.']);
+        }
 
         $filename = "laporan-rm-kembar-{$from->toDateString()}-{$to->toDateString()}.csv";
 

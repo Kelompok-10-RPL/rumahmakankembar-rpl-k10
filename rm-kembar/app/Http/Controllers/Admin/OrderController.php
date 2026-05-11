@@ -8,6 +8,7 @@ use App\Models\StockLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,6 +37,12 @@ class OrderController extends Controller
 
     public function transition(Request $request, Order $order, string $action): RedirectResponse
     {
+        if ($action === 'cancel' && $order->status === 'completed') {
+            throw ValidationException::withMessages([
+                'order' => 'Pesanan yang sudah selesai tidak bisa dibatalkan.',
+            ]);
+        }
+
         DB::transaction(function () use ($request, $order, $action) {
             $order->refresh();
 

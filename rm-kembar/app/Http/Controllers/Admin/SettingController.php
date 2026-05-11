@@ -51,6 +51,10 @@ class SettingController extends Controller
             default => filled($value),
         };
 
+        if ($isValid && in_array($setting->type, ['integer', 'float'], true) && (float) $value < 0) {
+            $isValid = false;
+        }
+
         if (! $isValid) {
             throw ValidationException::withMessages([
                 "settings.{$setting->key}" => "{$setting->label} tidak valid.",
