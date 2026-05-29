@@ -60,7 +60,36 @@ function TableCard({ table }) {
             <a className="mt-3 block break-all rounded-md bg-zinc-50 p-2 text-xs font-semibold text-red-700" href={table.order_url} target="_blank" rel="noreferrer">
                 {table.order_url}
             </a>
-            <button disabled={processing} className="mt-3 rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">Update Meja</button>
+            <div className="mt-4 flex flex-col items-center border border-dashed border-zinc-300 p-4 rounded-md bg-zinc-50">
+                <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(table.order_url)}`} 
+                    alt={`QR Code Meja ${table.table_number}`}
+                    className="w-32 h-32 mb-2"
+                    crossOrigin="anonymous"
+                />
+                <button 
+                    type="button" 
+                    onClick={() => {
+                        fetch(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(table.order_url)}`)
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.style.display = 'none';
+                                a.href = url;
+                                a.download = `QR_Meja_${table.table_number}.png`;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                            })
+                            .catch(err => alert("Gagal mengunduh QR code"));
+                    }}
+                    className="text-xs font-semibold text-zinc-600 hover:text-red-700 underline"
+                >
+                    Download QR Code
+                </button>
+            </div>
+            <button disabled={processing} className="mt-3 w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800">Update Meja</button>
         </form>
     );
 }

@@ -27,6 +27,32 @@ export default function Confirm({ order }) {
                             ))}
                         </div>
                     </div>
+                    {order.payment_status === 'unpaid' && order.snap_token && (
+                        <div className="mt-8 text-center border-t border-zinc-200 pt-6">
+                            <button
+                                onClick={() => {
+                                    if (window.snap) {
+                                        window.snap.pay(order.snap_token, {
+                                            onSuccess: function(result){
+                                                window.location.reload();
+                                            },
+                                            onPending: function(result){
+                                                window.location.reload();
+                                            },
+                                            onError: function(result){
+                                                alert("Pembayaran gagal atau dibatalkan.");
+                                            }
+                                        });
+                                    } else {
+                                        alert("Payment gateway is loading, please try again in a moment.");
+                                    }
+                                }}
+                                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
+                            >
+                                Bayar Sekarang
+                            </button>
+                        </div>
+                    )}
                 </div>
             </section>
         </AppLayout>

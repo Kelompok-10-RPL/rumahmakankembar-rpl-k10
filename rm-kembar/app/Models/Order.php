@@ -31,6 +31,7 @@ class Order extends Model
         'preparing_at',
         'completed_at',
         'cancelled_at',
+        'snap_token',
         'meta',
     ];
 

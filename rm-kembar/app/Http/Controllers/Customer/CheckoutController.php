@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Midtrans\Config;
+use Midtrans\Snap;
+use App\Services\WhatsAppService;
 
 class CheckoutController extends Controller
 {
@@ -97,14 +100,56 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            $order->payments()->create([
-                'transaction_id' => 'MANUAL-'.$order->unique_code,
-                'payment_method' => $data['payment_method'],
-                'payment_type' => 'full',
-                'amount' => $order->total_price,
-                'status' => 'pending',
-                'expired_at' => now()->addMinutes((int) Setting::valueFor('auto_cancel_minutes', 30)),
-            ]);
+            if ($data['payment_method'] === 'qris' || $data['payment_method'] === 'bank_transfer') {
+                Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+                Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+                Config::$isSanitized = true;
+                Config::$is3ds = true;
+
+                $params = [
+                    'transaction_details' => [
+                        'order_id' => $order->unique_code,
+                        'gross_amount' => (int) $order->total_price,
+                    ],
+                    'customer_details' => [
+                        'first_name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                    ],
+                ];
+
+                try {
+                    $snapToken = Snap::getSnapToken($params);
+                    $order->payments()->create([
+                        'transaction_id' => $snapToken,
+                        'payment_method' => $data['payment_method'],
+                        'payment_type' => 'full',
+                        'amount' => $order->total_price,
+                        'status' => 'pending',
+                        'expired_at' => now()->addMinutes((int) Setting::valueFor('auto_cancel_minutes', 30)),
+                    ]);
+                    $order->update(['snap_token' => $snapToken]);
+                } catch (\Exception $e) {
+                    // Fallback to manual if API fails
+                    $order->payments()->create([
+                        'transaction_id' => 'MANUAL-'.$order->unique_code,
+                        'payment_method' => $data['payment_method'],
+                        'payment_type' => 'full',
+                        'amount' => $order->total_price,
+                        'status' => 'pending',
+                        'expired_at' => now()->addMinutes((int) Setting::valueFor('auto_cancel_minutes', 30)),
+                    ]);
+                }
+            } else {
+                $order->payments()->create([
+                    'transaction_id' => 'MANUAL-'.$order->unique_code,
+                    'payment_method' => $data['payment_method'],
+                    'payment_type' => 'full',
+                    'amount' => $order->total_price,
+                    'status' => 'pending',
+                    'expired_at' => now()->addMinutes((int) Setting::valueFor('auto_cancel_minutes', 30)),
+                ]);
+            }
 
             if ($table) {
                 $table->update([
@@ -116,6 +161,19 @@ class CheckoutController extends Controller
 
             return $order;
         });
+
+        // Send WhatsApp Notification asynchronously (if phone exists)
+        if ($order->user->phone) {
+            $message = "Halo {$order->user->name}, pesanan Anda di RM Kembar telah diterima.\n\n"
+                     . "Kode Pesanan: *{$order->unique_code}*\n"
+                     . "Total: *Rp " . number_format($order->total_price, 0, ',', '.') . "*\n\n"
+                     . "Status: {$order->status}\n"
+                     . "Terima kasih!";
+                     
+            dispatch(function () use ($order, $message) {
+                WhatsAppService::sendMessage($order->user->phone, $message);
+            })->afterResponse();
+        }
 
         $request->session()->forget(['cart', 'selected_table_id']);
 

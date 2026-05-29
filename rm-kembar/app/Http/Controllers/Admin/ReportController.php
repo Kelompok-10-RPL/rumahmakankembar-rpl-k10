@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\SalesExport;
 
 class ReportController extends Controller
 {
@@ -37,9 +40,11 @@ class ReportController extends Controller
         ]);
     }
 
-    public function export(Request $request): RedirectResponse|StreamedResponse
+    public function export(Request $request)
     {
         [$from, $to] = $this->dateRange($request);
+        $type = $request->query('type', 'csv');
+
         $orders = Order::query()
             ->with(['user', 'table'])
             ->whereBetween('created_at', [$from, $to])
@@ -50,8 +55,21 @@ class ReportController extends Controller
             return back()->withErrors(['report' => 'Data tidak tersedia.']);
         }
 
-        $filename = "laporan-rm-kembar-{$from->toDateString()}-{$to->toDateString()}.csv";
+        $filename = "laporan-rm-kembar-{$from->toDateString()}-{$to->toDateString()}";
 
+        if ($type === 'excel') {
+            return Excel::download(new SalesExport($from, $to), $filename . '.xlsx');
+        } elseif ($type === 'pdf') {
+            $pdf = Pdf::loadView('reports.sales', [
+                'orders' => $orders,
+                'from' => $from,
+                'to' => $to,
+                'total_revenue' => collect($orders)->where('payment_status', 'paid')->sum('total_price'),
+            ]);
+            return $pdf->download($filename . '.pdf');
+        }
+
+        // Fallback to basic CSV if no type provided
         return response()->streamDownload(function () use ($orders) {
             $handle = fopen('php://output', 'w');
             fputcsv($handle, ['Kode', 'Tanggal', 'Customer', 'Meja', 'Status', 'Pembayaran', 'Subtotal', 'PPN', 'Total']);
@@ -71,7 +89,7 @@ class ReportController extends Controller
             }
 
             fclose($handle);
-        }, $filename, ['Content-Type' => 'text/csv']);
+        }, $filename . '.csv', ['Content-Type' => 'text/csv']);
     }
 
     private function dateRange(Request $request): array

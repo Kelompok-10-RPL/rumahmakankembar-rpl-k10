@@ -8,6 +8,7 @@
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @inertiaHead
+    <script type="text/javascript" src="{{ env('MIDTRANS_IS_PRODUCTION') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
 </head>
 <body class="bg-zinc-50 text-zinc-950 antialiased">
     @inertia
