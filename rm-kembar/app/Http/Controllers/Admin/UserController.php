@@ -59,7 +59,7 @@ class UserController extends Controller
     private function validated(Request $request, ?int $ignoreId = null, bool $isUpdate = false): array
     {
         return $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
             'email' => [
                 'nullable',
                 'email',
@@ -69,7 +69,9 @@ class UserController extends Controller
             'phone' => [
                 'nullable',
                 'string',
+                'min:9',
                 'max:20',
+                'regex:/^[0-9\-\+\s\(\)]+$/',
                 Rule::unique('users', 'phone')->ignore($ignoreId),
             ],
             'role' => ['required', Rule::in(['customer', 'admin', 'owner', 'kitchen'])],

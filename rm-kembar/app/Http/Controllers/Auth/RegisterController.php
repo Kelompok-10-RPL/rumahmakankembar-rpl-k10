@@ -20,9 +20,9 @@ class RegisterController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
-            'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
+            'phone' => ['required', 'string', 'min:9', 'max:20', 'regex:/^[0-9\-\+\s\(\)]+$/', 'unique:users,phone'],
             'address' => ['nullable', 'string'],
             'password' => ['required', 'confirmed', 'min:8'],
         ]);

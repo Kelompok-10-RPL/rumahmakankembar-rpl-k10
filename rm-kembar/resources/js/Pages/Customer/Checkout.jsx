@@ -28,10 +28,10 @@ export default function Checkout({ cart, subtotal, taxRate, taxAmount, total, ta
                     {!user && (
                         <div className="mt-5 grid gap-4 sm:grid-cols-2">
                             <label className="block text-sm font-medium">Nama
-                                <input className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
+                                <input className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2" value={data.name} onChange={(e) => setData('name', e.target.value)} required minLength="3" maxLength="100" pattern="^[a-zA-Z\s\.\,\'\-]+$" title="Nama hanya boleh berisi huruf dan spasi." />
                             </label>
                             <label className="block text-sm font-medium">Nomor WhatsApp
-                                <input className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2" value={data.phone} onChange={(e) => setData('phone', e.target.value)} required />
+                                <input className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2" type="tel" value={data.phone} onChange={(e) => setData('phone', e.target.value)} required minLength="9" maxLength="20" pattern="^\+?[0-9\s\-\(\)]+$" title="Nomor telepon hanya boleh berisi angka, spasi, atau karakter +-()" />
                             </label>
                             <label className="block text-sm font-medium">Email
                                 <input className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} />

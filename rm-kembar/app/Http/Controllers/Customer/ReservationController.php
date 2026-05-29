@@ -26,8 +26,8 @@ class ReservationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => [$request->user() ? 'nullable' : 'required', 'string', 'max:100'],
-            'phone' => [$request->user() ? 'nullable' : 'required', 'string', 'max:20'],
+            'name' => [$request->user() ? 'nullable' : 'required', 'string', 'min:3', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
+            'phone' => [$request->user() ? 'nullable' : 'required', 'string', 'min:9', 'max:20', 'regex:/^[0-9\-\+\s\(\)]+$/'],
             'reserved_date' => ['required', 'date', 'after_or_equal:today'],
             'reserved_time' => ['required', 'date_format:H:i'],
             'guest_count' => ['required', 'integer', 'min:1', 'max:100'],

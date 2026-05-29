@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'evolution' => [
+        'url' => env('EVOLUTION_API_URL', 'http://evolution-api:8080'),
+        'key' => env('EVOLUTION_API_KEY'),
+        'instance' => env('EVOLUTION_INSTANCE_NAME', 'test'),
+    ],
+
 ];

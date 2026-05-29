@@ -45,8 +45,8 @@ class CheckoutController extends Controller
         }
 
         $data = $request->validate([
-            'name' => [$request->user() ? 'nullable' : 'required', 'string', 'max:100'],
-            'phone' => [$request->user() ? 'nullable' : 'required', 'string', 'max:20'],
+            'name' => [$request->user() ? 'nullable' : 'required', 'string', 'min:3', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
+            'phone' => [$request->user() ? 'nullable' : 'required', 'string', 'min:9', 'max:20', 'regex:/^[0-9\-\+\s\(\)]+$/'],
             'email' => ['nullable', 'email', 'max:150'],
             'address' => ['nullable', 'string'],
             'payment_method' => ['required', 'string', 'max:50'],

@@ -11,6 +11,7 @@ services:
     working_dir: /var/www
     volumes:
       - ./:/var/www
+      - rmkembar-vendor:/var/www/vendor
     networks:
       - rmkembar-network
 
@@ -113,3 +114,4 @@ volumes:
   redis-data:
   evolution-postgres-data:
   evolution-redis-data:
+  rmkembar-vendor:

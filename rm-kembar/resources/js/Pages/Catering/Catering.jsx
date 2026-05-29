@@ -162,6 +162,10 @@ export default function Catering({ cateringMenus }) {
                       onChange={(e) => setData('eventName', e.target.value)}
                       className="p-4 border-2 border-gray-300 rounded-lg w-full focus:border-red-500 focus:ring-red-500"
                       required
+                      minLength="3"
+                      maxLength="255"
+                      pattern="^[a-zA-Z0-9\s\.\,\'\-]+$"
+                      title="Nama acara hanya boleh berisi huruf, angka, dan spasi."
                     />
                     {errors.eventName && <p className="text-red-500 text-sm mt-1">{errors.eventName}</p>}
                   </div>
@@ -198,6 +202,8 @@ export default function Catering({ cateringMenus }) {
                       onChange={(e) => setData('place', e.target.value)}
                       className="p-4 border-2 border-gray-300 rounded-lg w-full focus:border-red-500 focus:ring-red-500 min-h-[100px]"
                       required
+                      minLength="5"
+                      maxLength="1000"
                     />
                     {errors.place && <p className="text-red-500 text-sm mt-1">{errors.place}</p>}
                   </div>
@@ -223,6 +229,10 @@ export default function Catering({ cateringMenus }) {
                             onChange={(e) => updateContact(index, 'name', e.target.value)}
                             className="p-3 border-2 border-gray-300 rounded-lg w-full focus:border-red-500"
                             required
+                            minLength="3"
+                            maxLength="100"
+                            pattern="^[a-zA-Z\s\.\,\'\-]+$"
+                            title="Nama hanya boleh berisi huruf dan spasi."
                           />
                         </div>
                         <div>
@@ -234,6 +244,10 @@ export default function Catering({ cateringMenus }) {
                             onChange={(e) => updateContact(index, 'phone', e.target.value)}
                             className="p-3 border-2 border-gray-300 rounded-lg w-full focus:border-red-500"
                             required
+                            minLength="9"
+                            maxLength="20"
+                            pattern="^\+?[0-9\s\-\(\)]+$"
+                            title="Nomor telepon hanya boleh berisi angka, spasi, atau karakter +-()"
                           />
                         </div>
                         <div>

@@ -9,9 +9,12 @@ class WhatsAppService
 {
     public static function sendMessage(string $phone, string $message): bool
     {
-        $url = env('EVOLUTION_API_URL') . '/message/sendText/' . env('EVOLUTION_INSTANCE_NAME');
-        $apiKey = env('EVOLUTION_API_KEY');
+        $url = config('services.evolution.url') . '/message/sendText/' . config('services.evolution.instance');
+        $apiKey = config('services.evolution.key');
 
+        // Clean phone number (remove +, spaces, dashes, parentheses)
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        
         // Format phone number to international format (example for ID)
         if (str_starts_with($phone, '0')) {
             $phone = '62' . substr($phone, 1);

@@ -35,13 +35,13 @@ class CateringController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'eventName' => ['required', 'string', 'max:255'],
+            'eventName' => ['required', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z0-9\s\.\,\'\-]+$/'],
             'date' => ['required', 'date', 'after_or_equal:today'],
             'time' => ['nullable', 'date_format:H:i'],
-            'place' => ['required', 'string', 'max:1000'],
+            'place' => ['required', 'string', 'min:5', 'max:1000'],
             'contacts' => ['required', 'array', 'min:1'],
-            'contacts.*.name' => ['required', 'string', 'max:100'],
-            'contacts.*.phone' => ['required', 'string', 'max:30'],
+            'contacts.*.name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
+            'contacts.*.phone' => ['required', 'string', 'min:9', 'max:20', 'regex:/^[0-9\-\+\s\(\)]+$/'],
             'contacts.*.email' => ['nullable', 'email'],
             'menuItems' => ['required', 'array', 'min:1'],
             'menuItems.*.id' => ['required', 'exists:menus,id'],
