@@ -18,6 +18,7 @@ use App\Http\Controllers\Customer\ReservationController;
 use App\Http\Controllers\KitchenController;
 use App\Http\Controllers\Customer\CateringController;
 use App\Http\Controllers\PaymentCallbackController;
+use App\Http\Controllers\Info\AboutController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -69,6 +70,7 @@ Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')
 });
 
 Route::get('/kitchen', KitchenController::class)->middleware(['auth', 'role:kitchen,admin,owner'])->name('kitchen.index');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 Route::get('/catering', [CateringController::class, 'index'])->name('catering');
 Route::post('/catering', [CateringController::class, 'store'])->name('catering.store');
