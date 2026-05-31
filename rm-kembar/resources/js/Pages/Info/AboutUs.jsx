@@ -313,68 +313,7 @@ import {
           </section>
         </div>
   
-        {/* Footer */}
-        <footer className="bg-[#12002F] text-white">
-          <div className="max-w-7xl mx-auto px-8 py-16">
-            <div className="grid md:grid-cols-4 gap-12 mb-12">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                    <ChefHat className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="tracking-wide">Warung Makan</div>
-                    <div className="tracking-wide -mt-1">Kembar</div>
-                  </div>
-                </div>
-                <p className="text-purple-300 text-sm">
-                  Authentic Indonesian cuisine with a modern touch
-                </p>
-              </div>
-  
-              <div>
-                <h4 className="text-lg mb-4">Quick Links</h4>
-                <ul className="space-y-2 text-purple-300">
-                  <li><a href="#" className="hover:text-white transition-colors">Beranda</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Dine-In</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Catering</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Location</a></li>
-                </ul>
-              </div>
-  
-              <div>
-                <h4 className="text-lg mb-4">Contact</h4>
-                <ul className="space-y-3 text-purple-300">
-                  <li className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    <span>+62 21 1234 5678</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    <span>info@warungkembar.com</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>Jakarta Pusat</span>
-                  </li>
-                </ul>
-              </div>
-  
-              <div>
-                <h4 className="text-lg mb-4">Follow Us</h4>
-                <div className="flex gap-4">
-                  
-                  {/* bagian social media dah pokoknya */}
-                  
-                </div>
-              </div>
-            </div>
-  
-            <div className="border-t border-purple-800 pt-8 text-center text-purple-300 text-sm">
-              <p>&copy; 2026 Warung Makan Kembar. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
+
       </div>
       </AppLayout>
     );

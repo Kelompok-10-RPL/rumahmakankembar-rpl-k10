@@ -67,6 +67,11 @@ class Order extends Model
         return $this->morphMany(Payment::class, 'payable');
     }
 
+    public function rating()
+    {
+        return $this->morphOne(Rating::class, 'rateable');
+    }
+
     public static function generateCode(?User $user = null): string
     {
         $name = $user ? Str::upper(Str::limit(Str::slug($user->name, ''), 5, '')) : 'GUEST';

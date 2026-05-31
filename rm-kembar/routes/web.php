@@ -51,6 +51,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 Route::middleware(['auth'])->group(function () {
     Route::get('/akun/riwayat', [AccountController::class, 'history'])->name('account.history');
     Route::post('/akun/pesanan/{order}/cancel', [AccountController::class, 'cancelOrder'])->name('account.orders.cancel');
+    Route::post('/akun/pesanan/{order}/rating', [\App\Http\Controllers\Customer\RatingController::class, 'store'])->name('account.orders.rating');
 });
 
 Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')->group(function () {

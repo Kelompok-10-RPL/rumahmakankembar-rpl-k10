@@ -15,7 +15,7 @@ class AccountController extends Controller
     public function history(Request $request): Response
     {
         $orders = Order::query()
-            ->with(['items', 'table', 'payments'])
+            ->with(['items', 'table', 'payments', 'rating'])
             ->where('user_id', $request->user()->id)
             ->latest()
             ->paginate(10);
