@@ -5,8 +5,23 @@ import { statusText } from '../../Layouts/AppLayout';
 
 export default function Index({ orders }) {
     useEffect(() => {
-        const id = window.setInterval(() => router.reload({ only: ['orders'] }), 5000);
-        return () => window.clearInterval(id);
+        let channel;
+        if (window.Echo) {
+            channel = window.Echo.channel('kitchen.orders')
+                .listen('KitchenOrderUpdated', (e) => {
+                    router.reload({ only: ['orders'] });
+                });
+        }
+        
+        // Fallback polling (every 15s just in case WS drops)
+        const id = window.setInterval(() => router.reload({ only: ['orders'] }), 15000);
+        
+        return () => {
+            window.clearInterval(id);
+            if (channel) {
+                window.Echo.leaveChannel('kitchen.orders');
+            }
+        };
     }, []);
 
     return (

@@ -14,7 +14,7 @@ export default function Menu({ menus, categories, cart, selectedTable, filters }
     return (
         <AppLayout>
             <Head title="Menu Dine-In" />
-            <section className="mx-auto grid max-w-6xl gap-6 px-4 py-8 lg:grid-cols-[1fr_360px]">
+            <section className="mx-auto grid max-w-6xl gap-6 px-4 py-8 pb-24 lg:grid-cols-[1fr_360px] lg:pb-8">
                 <div>
                     <div className="mb-5">
                         <h1 className="text-3xl font-bold">Menu Dine-In</h1>
@@ -23,12 +23,12 @@ export default function Menu({ menus, categories, cart, selectedTable, filters }
                         </p>
                     </div>
                     <form className="mb-5 grid gap-3 rounded-md border border-zinc-200 bg-white p-4 sm:grid-cols-[1fr_180px_auto]" onSubmit={filter}>
-                        <input className="rounded-md border border-zinc-300 px-3 py-2" name="q" defaultValue={filters?.q || ''} placeholder="Cari menu" />
-                        <select className="rounded-md border border-zinc-300 px-3 py-2" name="category" defaultValue={filters?.category || ''}>
+                        <input className="w-full min-w-0 rounded-md border border-zinc-300 px-3 py-2" name="q" defaultValue={filters?.q || ''} placeholder="Cari menu" />
+                        <select className="w-full min-w-0 rounded-md border border-zinc-300 px-3 py-2" name="category" defaultValue={filters?.category || ''}>
                             <option value="">Semua kategori</option>
                             {categories.map((category) => <option key={category.id} value={category.slug}>{category.name}</option>)}
                         </select>
-                        <button className="rounded-md bg-zinc-900 px-4 py-2 font-semibold text-white">Filter</button>
+                        <button className="w-full whitespace-nowrap rounded-md bg-zinc-900 px-4 py-2 font-semibold text-white sm:w-auto">Filter</button>
                     </form>
                     <div className="grid gap-3 sm:grid-cols-2">
                         {menus.map((menu) => <MenuCard key={menu.id} menu={menu} selectedTable={selectedTable} />)}
@@ -63,6 +63,19 @@ export default function Menu({ menus, categories, cart, selectedTable, filters }
                     )}
                 </aside>
             </section>
+
+            {/* Mobile Fixed Cart Bar */}
+            {items.length > 0 && (
+                <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t border-zinc-200 bg-white p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:hidden">
+                    <div>
+                        <p className="text-sm text-zinc-600">{items.reduce((sum, i) => sum + Number(i.qty), 0)} items</p>
+                        <p className="font-bold text-red-700">{money(subtotal)}</p>
+                    </div>
+                    <Link href="/checkout" className="rounded-md bg-red-700 px-6 py-2 font-semibold text-white hover:bg-red-800">
+                        Checkout
+                    </Link>
+                </div>
+            )}
         </AppLayout>
     );
 }
@@ -83,6 +96,11 @@ function MenuCard({ menu, selectedTable }) {
 
     return (
         <article className="rounded-md border border-zinc-200 bg-white p-4">
+            {menu.image && (
+                <div className="mb-4 aspect-video w-full overflow-hidden rounded-md bg-zinc-100">
+                    <img src={menu.image} alt={menu.name} className="h-full w-full object-cover" />
+                </div>
+            )}
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <p className="text-xs font-semibold uppercase text-zinc-500">{menu.category?.name}</p>
@@ -95,11 +113,11 @@ function MenuCard({ menu, selectedTable }) {
                 <span className={unavailable ? 'text-red-700' : 'text-emerald-700'}>{unavailable ? 'Habis' : `Stok ${menu.stock}`}</span>
             </div>
             <form className="mt-3 grid gap-2" onSubmit={submit}>
-                <div className="grid grid-cols-[88px_1fr] gap-2">
-                    <input className="rounded-md border border-zinc-300 px-3 py-2" type="number" min="1" max={Math.max(1, Number(menu.stock))} value={data.qty} onChange={(e) => setData('qty', e.target.value)} />
-                    <input className="rounded-md border border-zinc-300 px-3 py-2" value={data.notes} onChange={(e) => setData('notes', e.target.value)} placeholder="Catatan item" />
+                <div className="grid grid-cols-[80px_1fr] gap-2">
+                    <input className="w-full min-w-0 rounded-md border border-zinc-300 px-3 py-2" type="number" min="1" max={Math.max(1, Number(menu.stock))} value={data.qty} onChange={(e) => setData('qty', e.target.value)} />
+                    <input className="w-full min-w-0 rounded-md border border-zinc-300 px-3 py-2" value={data.notes} onChange={(e) => setData('notes', e.target.value)} placeholder="Catatan item" />
                 </div>
-                <button disabled={unavailable || processing} className="rounded-md bg-red-700 px-4 py-2 font-semibold text-white disabled:bg-zinc-300">Tambah</button>
+                <button disabled={unavailable || processing} className="w-full rounded-md bg-red-700 px-4 py-2 font-semibold text-white disabled:bg-zinc-300">Tambah</button>
             </form>
         </article>
     );

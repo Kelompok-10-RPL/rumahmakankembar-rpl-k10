@@ -23,6 +23,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
+Route::get('/debug', [\App\Http\Controllers\DebugController::class, 'index'])->name('debug.index');
+Route::post('/debug/wa', [\App\Http\Controllers\DebugController::class, 'testWhatsApp'])->name('debug.wa');
+Route::post('/debug/reservation', [\App\Http\Controllers\DebugController::class, 'seedReservation'])->name('debug.reservation');
+Route::post('/debug/order', [\App\Http\Controllers\DebugController::class, 'seedOrder'])->name('debug.order');
+
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::post('/cart/items', [MenuController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart/items/{menu}', [MenuController::class, 'removeFromCart'])->name('cart.remove');
@@ -52,6 +57,12 @@ Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/pesanan', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::post('/pesanan/{order}/{action}', [AdminOrderController::class, 'transition'])->name('orders.transition');
+    Route::get('/kategori', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/kategori', [\App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/kategori/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/kategori/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::get('/reservasi', [\App\Http\Controllers\Admin\ReservationController::class, 'index'])->name('reservations.index');
+    Route::put('/reservasi/{reservation}', [\App\Http\Controllers\Admin\ReservationController::class, 'update'])->name('reservations.update');
     Route::get('/menu', [AdminMenuController::class, 'index'])->name('menu.index');
     Route::post('/menu', [AdminMenuController::class, 'store'])->name('menu.store');
     Route::put('/menu/{menu}', [AdminMenuController::class, 'update'])->name('menu.update');

@@ -47,7 +47,7 @@ function ReportTable({ title, rows, columns }) {
     return (
         <section className="rounded-md border border-zinc-200 bg-white">
             <div className="border-b border-zinc-200 p-4"><h2 className="font-bold">{title}</h2></div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto w-full">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-zinc-50 text-zinc-600">
                         <tr>{columns.map(([, label]) => <th key={label} className="p-3">{label}</th>)}</tr>

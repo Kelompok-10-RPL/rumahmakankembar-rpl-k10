@@ -10,7 +10,9 @@ export default function AdminLayout({ children }) {
                 <nav className="mt-6 grid gap-1 text-sm font-medium">
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/dashboard">Dashboard</Link>
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/pesanan">Pesanan</Link>
+                    <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/reservasi">Reservasi</Link>
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/menu">Menu</Link>
+                    <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/kategori">Kategori Menu</Link>
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/stok-meja">Stok & Meja</Link>
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/pengguna">Pengguna</Link>
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/laporan">Laporan</Link>

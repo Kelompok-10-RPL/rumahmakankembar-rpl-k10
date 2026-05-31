@@ -86,7 +86,7 @@ export default function Catering({ cateringMenus }) {
             {packages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
                 <div className="h-48 bg-gray-200">
-                  <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=400&h=300&fit=crop" alt={pkg.name} className="w-full h-full object-cover" />
+                  <img src={pkg.image || "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=400&h=300&fit=crop"} alt={pkg.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="text-xl font-bold mb-2 text-gray-800">{pkg.name}</h3>
@@ -304,7 +304,7 @@ export default function Catering({ cateringMenus }) {
                   {cateringMenus.map((item) => (
                     <div key={item.id} className={`bg-white rounded-2xl shadow-md overflow-hidden border-2 transition ${getQuantity(item.id) > 0 ? 'border-red-500' : 'border-transparent'}`}>
                       <div className="h-40 bg-gray-200">
-                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt={item.name} className="w-full h-full object-cover" />
+                        <img src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop"} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="p-5 text-center flex flex-col h-[180px]">
                         <h3 className="font-bold text-gray-800 mb-1">{item.name}</h3>

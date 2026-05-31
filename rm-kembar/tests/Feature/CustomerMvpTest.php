@@ -89,6 +89,8 @@ class CustomerMvpTest extends TestCase
 
     public function test_checkout_creates_order_payment_items_and_locks_selected_table(): void
     {
+        \Illuminate\Support\Facades\Http::fake();
+
         $menu = Menu::query()->firstOrFail();
         $table = DineInTable::query()->firstOrFail();
 

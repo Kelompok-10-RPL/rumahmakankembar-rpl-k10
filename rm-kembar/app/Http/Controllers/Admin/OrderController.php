@@ -56,6 +56,8 @@ class OrderController extends Controller
             };
         });
 
+        event(new \App\Events\KitchenOrderUpdated($order));
+
         return back()->with('status', 'Status pesanan diperbarui.');
     }
 

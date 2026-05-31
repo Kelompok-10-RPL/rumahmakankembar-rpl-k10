@@ -162,6 +162,8 @@ class CheckoutController extends Controller
             return $order;
         });
 
+        event(new \App\Events\KitchenOrderUpdated($order));
+
         // Send WhatsApp Notification asynchronously (if phone exists)
         if ($order->user->phone) {
             $message = "Halo {$order->user->name}, pesanan Anda di RM Kembar telah diterima.\n\n"

@@ -19,7 +19,7 @@ export default function Menu({ menus, categories }) {
 
 function MenuForm({ menu, categories }) {
     const isEdit = Boolean(menu);
-    const { data, setData, post, put, processing, reset } = useForm(isEdit ? {
+    const { data, setData, post, processing, reset } = useForm(isEdit ? {
         category_id: menu.category_id,
         name: menu.name,
         description: menu.description || '',
@@ -30,19 +30,28 @@ function MenuForm({ menu, categories }) {
         is_available: menu.is_available,
         is_for_dine_in: menu.is_for_dine_in,
         is_for_catering: menu.is_for_catering,
-    } : { ...blank, category_id: categories[0]?.id || '' });
+        image: null,
+        _method: 'put',
+    } : { ...blank, category_id: categories[0]?.id || '', image: null });
 
     function submit(e) {
         e.preventDefault();
-        isEdit ? put(`/admin/menu/${menu.id}`, { preserveScroll: true }) : post('/admin/menu', { preserveScroll: true, onSuccess: () => reset() });
+        isEdit 
+            ? post(`/admin/menu/${menu.id}`, { preserveScroll: true, forceFormData: true }) 
+            : post('/admin/menu', { preserveScroll: true, forceFormData: true, onSuccess: () => reset() });
     }
 
     return (
-        <form className={`rounded-md border border-zinc-200 bg-white p-4 ${isEdit ? '' : 'mt-5'}`} onSubmit={submit}>
+        <form className={`rounded-md border border-zinc-200 bg-white p-4 ${isEdit ? '' : 'mt-5'}`} onSubmit={submit} encType="multipart/form-data">
             <div className="mb-3 flex justify-between gap-3">
                 <h2 className="font-bold">{isEdit ? menu.name : 'Tambah menu'}</h2>
                 {isEdit && <span className="text-sm font-semibold text-red-700">{money(menu.price)}</span>}
             </div>
+            {isEdit && menu.image && (
+                <div className="mb-4">
+                    <img src={menu.image} alt={menu.name} className="h-32 w-32 object-cover rounded-md shadow-sm" />
+                </div>
+            )}
             <div className="grid gap-3 md:grid-cols-4">
                 <select className="rounded-md border border-zinc-300 px-3 py-2" value={data.category_id} onChange={(e) => setData('category_id', e.target.value)} required>
                     {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
@@ -53,8 +62,16 @@ function MenuForm({ menu, categories }) {
                 <textarea className="rounded-md border border-zinc-300 px-3 py-2 md:col-span-2" value={data.description} onChange={(e) => setData('description', e.target.value)} placeholder="Deskripsi" />
                 <input className="rounded-md border border-zinc-300 px-3 py-2" type="number" min="0" value={data.low_stock_threshold} onChange={(e) => setData('low_stock_threshold', e.target.value)} placeholder="Batas stok rendah" />
                 <input className="rounded-md border border-zinc-300 px-3 py-2" type="number" value={data.sort_order} onChange={(e) => setData('sort_order', e.target.value)} placeholder="Urutan" />
-                {['is_available', 'is_for_dine_in', 'is_for_catering'].map((key) => <label key={key} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(data[key])} onChange={(e) => setData(key, e.target.checked)} /> {key.replace('is_', '').replaceAll('_', ' ')}</label>)}
-                <div className="flex gap-2 md:col-span-4">
+                
+                <div className="md:col-span-2">
+                    <label className="block text-sm text-zinc-600 mb-1">Gambar Menu</label>
+                    <input className="w-full text-sm text-zinc-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200" type="file" accept="image/*" onChange={(e) => setData('image', e.target.files[0])} />
+                </div>
+                <div className="md:col-span-2 flex flex-col justify-center gap-2">
+                    {['is_available', 'is_for_dine_in', 'is_for_catering'].map((key) => <label key={key} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(data[key])} onChange={(e) => setData(key, e.target.checked)} /> {key.replace('is_', '').replaceAll('_', ' ')}</label>)}
+                </div>
+                
+                <div className="flex gap-2 md:col-span-4 mt-2">
                     <button disabled={processing} className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">{isEdit ? 'Update' : 'Simpan Menu'}</button>
                     {isEdit && <button type="button" onClick={() => router.delete(`/admin/menu/${menu.id}`, { preserveScroll: true })} className="rounded-md border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">Hapus</button>}
                 </div>

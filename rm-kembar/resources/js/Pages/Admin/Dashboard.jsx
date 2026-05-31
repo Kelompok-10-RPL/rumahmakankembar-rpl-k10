@@ -16,7 +16,7 @@ export default function Dashboard({ ordersToday, revenueToday, activeOrders, occ
             <div className="mt-6 grid gap-5 xl:grid-cols-[1fr_360px]">
                 <section className="rounded-md border border-zinc-200 bg-white">
                     <div className="border-b border-zinc-200 p-4"><h2 className="font-bold">Pesanan terbaru</h2></div>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto w-full">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-zinc-50 text-zinc-600"><tr><th className="p-3">Kode</th><th className="p-3">Customer</th><th className="p-3">Meja</th><th className="p-3">Status</th><th className="p-3 text-right">Total</th></tr></thead>
                             <tbody>

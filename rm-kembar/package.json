@@ -20,7 +20,9 @@
     "dependencies": {
         "@inertiajs/react": "^3.0.3",
         "@vitejs/plugin-react": "^5.1.2",
+        "laravel-echo": "^2.3.4",
         "lucide-react": "^1.14.0",
+        "pusher-js": "^8.5.0",
         "react": "^19.2.5",
         "react-dom": "^19.2.5"
     }

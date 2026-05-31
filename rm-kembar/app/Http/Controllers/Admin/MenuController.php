@@ -9,6 +9,7 @@ use App\Models\StockLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,6 +31,11 @@ class MenuController extends Controller
         $data['is_for_dine_in'] = $request->boolean('is_for_dine_in', true);
         $data['is_for_catering'] = $request->boolean('is_for_catering', true);
 
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('menus', 'public');
+            $data['image'] = '/storage/' . $path;
+        }
+
         Menu::create($data);
 
         return back()->with('status', 'Menu berhasil ditambahkan.');
@@ -43,6 +49,14 @@ class MenuController extends Controller
         $data['is_available'] = $request->boolean('is_available');
         $data['is_for_dine_in'] = $request->boolean('is_for_dine_in', true);
         $data['is_for_catering'] = $request->boolean('is_for_catering', true);
+
+        if ($request->hasFile('image')) {
+            if ($menu->image) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $menu->image));
+            }
+            $path = $request->file('image')->store('menus', 'public');
+            $data['image'] = '/storage/' . $path;
+        }
 
         $menu->update($data);
 
@@ -64,6 +78,9 @@ class MenuController extends Controller
 
     public function destroy(Menu $menu): RedirectResponse
     {
+        if ($menu->image) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $menu->image));
+        }
         $menu->delete();
 
         return back()->with('status', 'Menu dihapus.');
@@ -79,6 +96,7 @@ class MenuController extends Controller
             'stock' => ['required', 'integer', 'min:0'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'sort_order' => ['nullable', 'integer'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
     }
 }
