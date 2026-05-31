@@ -99,4 +99,33 @@ class DebugController extends Controller
 
         return back()->with('status', 'Seeded a paid order! Check the Kitchen view.');
     }
+
+    public function simulatePayment(Order $order)
+    {
+        if ($order->payment_status === 'paid') {
+            return back()->with('status', 'Order is already paid.');
+        }
+
+        $order->update([
+            'payment_status' => 'paid',
+            'status' => 'paid_waiting',
+        ]);
+
+        $order->payments()->where('status', 'pending')->update([
+            'status' => 'settlement',
+            'paid_at' => now(),
+        ]);
+
+        event(new \App\Events\KitchenOrderUpdated($order));
+
+        // WhatsApp Notification (Optional, but included for completeness)
+        if ($order->user && $order->user->phone) {
+            $message = "Pembayaran untuk pesanan *{$order->unique_code}* berhasil diterima.\nStatus pesanan sekarang sedang disiapkan di dapur.";
+            try {
+                WhatsAppService::sendMessage($order->user->phone, $message);
+            } catch (\Exception $e) {}
+        }
+
+        return back()->with('status', 'Simulated successful payment!');
+    }
 }

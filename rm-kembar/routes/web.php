@@ -27,6 +27,7 @@ Route::get('/debug', [\App\Http\Controllers\DebugController::class, 'index'])->n
 Route::post('/debug/wa', [\App\Http\Controllers\DebugController::class, 'testWhatsApp'])->name('debug.wa');
 Route::post('/debug/reservation', [\App\Http\Controllers\DebugController::class, 'seedReservation'])->name('debug.reservation');
 Route::post('/debug/order', [\App\Http\Controllers\DebugController::class, 'seedOrder'])->name('debug.order');
+Route::post('/debug/simulate-payment/{order:unique_code}', [\App\Http\Controllers\DebugController::class, 'simulatePayment'])->name('debug.simulate_payment');
 
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::post('/cart/items', [MenuController::class, 'addToCart'])->name('cart.add');

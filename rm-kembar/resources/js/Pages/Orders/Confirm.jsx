@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AppLayout, { money, statusText } from '../../Layouts/AppLayout';
 
 export default function Confirm({ order }) {
@@ -27,29 +27,38 @@ export default function Confirm({ order }) {
                             ))}
                         </div>
                     </div>
-                    {order.payment_status === 'unpaid' && order.snap_token && (
-                        <div className="mt-8 text-center border-t border-zinc-200 pt-6">
+                    {order.payment_status === 'unpaid' && (
+                        <div className="mt-8 text-center border-t border-zinc-200 pt-6 space-y-4 flex flex-col items-center">
+                            {order.snap_token && (
+                                <button
+                                    onClick={() => {
+                                        if (window.snap) {
+                                            window.snap.pay(order.snap_token, {
+                                                onSuccess: function(result){
+                                                    window.location.reload();
+                                                },
+                                                onPending: function(result){
+                                                    window.location.reload();
+                                                },
+                                                onError: function(result){
+                                                    alert("Pembayaran gagal atau dibatalkan.");
+                                                }
+                                            });
+                                        } else {
+                                            alert("Payment gateway is loading, please try again in a moment.");
+                                        }
+                                    }}
+                                    className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
+                                >
+                                    Bayar Sekarang
+                                </button>
+                            )}
+
                             <button
-                                onClick={() => {
-                                    if (window.snap) {
-                                        window.snap.pay(order.snap_token, {
-                                            onSuccess: function(result){
-                                                window.location.reload();
-                                            },
-                                            onPending: function(result){
-                                                window.location.reload();
-                                            },
-                                            onError: function(result){
-                                                alert("Pembayaran gagal atau dibatalkan.");
-                                            }
-                                        });
-                                    } else {
-                                        alert("Payment gateway is loading, please try again in a moment.");
-                                    }
-                                }}
-                                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
+                                onClick={() => router.post(`/debug/simulate-payment/${order.unique_code}`)}
+                                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
                             >
-                                Bayar Sekarang
+                                [Debug] Simulasi Pembayaran Sukses
                             </button>
                         </div>
                     )}
