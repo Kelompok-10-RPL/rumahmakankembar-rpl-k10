@@ -52,14 +52,6 @@ export default function Confirm({ order }) {
                                 >
                                     Bayar Sekarang
                                 </button>
-                            )}
-
-                            <button
-                                onClick={() => router.post(`/debug/simulate-payment/${order.unique_code}`)}
-                                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
-                            >
-                                [Debug] Simulasi Pembayaran Sukses
-                            </button>
                         </div>
                     )}
                 </div>

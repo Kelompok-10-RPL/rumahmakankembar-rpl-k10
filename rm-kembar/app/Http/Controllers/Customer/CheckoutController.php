@@ -116,6 +116,9 @@ class CheckoutController extends Controller
                         'email' => $user->email,
                         'phone' => $user->phone,
                     ],
+                    'callbacks' => [
+                        'finish' => url('/orders/' . $order->unique_code . '/confirm'),
+                    ],
                 ];
 
                 try {
