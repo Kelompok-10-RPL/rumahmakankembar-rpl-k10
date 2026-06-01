@@ -142,6 +142,7 @@ services:
       - CACHE_REDIS_PREFIX_KEY=evolution
     networks:
       - rmkembar-network
+      - coolify        
     depends_on:
       - evolution-postgres
       - evolution-redis
