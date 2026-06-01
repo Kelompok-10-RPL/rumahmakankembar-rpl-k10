@@ -62,7 +62,7 @@ export default function Catering({ cateringMenus }) {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     } else {
-      post(route('catering.store'), {
+      post('/catering', {
         preserveScroll: true,
       });
     }
@@ -446,7 +446,7 @@ export default function Catering({ cateringMenus }) {
                     <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                   </div>
                 </div>
-                <Link href={route('home')} className="inline-block bg-red-600 text-white font-bold px-12 py-4 rounded-full hover:bg-red-700 transition">
+                <Link href="/" className="inline-block bg-red-600 text-white font-bold px-12 py-4 rounded-full hover:bg-red-700 transition">
                   Kembali ke Beranda
                 </Link>
               </div>
