@@ -79,6 +79,15 @@ export default function AppLayout({ children }) {
         >
             About Us
         </Link>
+
+        {user?.role === 'admin' && (
+            <Link
+                href="/admin"
+                className="hover:text-amber-400 transition text-amber-500"
+            >
+                Admin Panel
+            </Link>
+        )}
     </nav>
 
     {/* RIGHT USER */}
@@ -132,6 +141,9 @@ export default function AppLayout({ children }) {
             <Link href="/menu" className="text-xl font-semibold hover:text-red-400" onClick={() => setIsMobileMenuOpen(false)}>Dine-In</Link>
             <Link href="/catering" className="text-xl font-semibold hover:text-red-400" onClick={() => setIsMobileMenuOpen(false)}>Catering</Link>
             <Link href="/about" className="text-xl font-semibold hover:text-red-400" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
+            {user?.role === 'admin' && (
+                <Link href="/admin" className="text-xl font-semibold hover:text-amber-400 text-amber-500" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Link>
+            )}
             <hr className="border-purple-800" />
             {user ? (
                 <div className="flex items-center gap-3">
