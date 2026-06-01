@@ -1,11 +1,16 @@
 import { Link, usePage } from '@inertiajs/react';
 
 export default function AdminLayout({ children }) {
-    const { flash, errors } = usePage().props;
+    const { flash, errors, auth } = usePage().props;
+
+    const user = auth?.user;
+    const initials = user?.name
+        ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+        : 'AD';
 
     return (
         <div className="min-h-screen bg-zinc-100 text-zinc-950 md:grid md:grid-cols-[240px_1fr]">
-            <aside className="border-r border-zinc-200 bg-white p-4">
+            <aside className="flex flex-col border-r border-zinc-200 bg-white p-4">
                 <Link className="text-xl font-black" href="/admin/dashboard">RM Kembar</Link>
                 <nav className="mt-6 grid gap-1 text-sm font-medium">
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/admin/dashboard">Dashboard</Link>
@@ -20,7 +25,39 @@ export default function AdminLayout({ children }) {
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/kitchen">Kitchen</Link>
                     <Link className="rounded-md px-3 py-2 hover:bg-zinc-100" href="/">Beranda</Link>
                 </nav>
-                <Link method="post" as="button" href="/logout" className="mt-6 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm font-semibold hover:bg-zinc-100">Keluar</Link>
+
+                {/* Spacer pushes profile card to bottom */}
+                <div className="flex-1" />
+
+                {/* Admin Profile Card */}
+                <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+                    <div className="flex items-center gap-3">
+                        {/* Placeholder initials avatar */}
+                        <div
+                            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-zinc-800 text-xs font-bold text-white"
+                            title={user?.name ?? 'Admin'}
+                        >
+                            {initials}
+                        </div>
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-zinc-900">
+                                {user?.name ?? 'Admin'}
+                            </p>
+                            <p className="truncate text-xs text-zinc-500">
+                                {user?.email ?? 'admin@rmkembar.com'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <Link
+                    method="post"
+                    as="button"
+                    href="/logout"
+                    className="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                >
+                    Keluar
+                </Link>
             </aside>
             <main className="p-4 md:p-6">
                 {(flash?.status || Object.keys(errors || {}).length > 0) && (
@@ -31,10 +68,6 @@ export default function AdminLayout({ children }) {
                 )}
                 {children}
             </main>
-
-                
-
-
         </div>
     );
 }

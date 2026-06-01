@@ -19,6 +19,10 @@ export default function AppLayout({ children }) {
     const user = auth?.user;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    const initials = user?.name
+        ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+        : '?';
+
     return (
         <div className="min-h-screen bg-zinc-50 text-zinc-950 overflow-x-hidden">
             <header className="sticky top-0 z-20 bg-[#140028] text-white shadow-md">
@@ -86,12 +90,12 @@ export default function AppLayout({ children }) {
                     {user.name}
                 </span>
 
-                <div className="h-14 w-14 rounded-full bg-gray-200 overflow-hidden">
-                    <img
-                        src="/images/user.png"
-                        alt="User"
-                        className="h-full w-full object-cover"
-                    />
+                {/* Initials placeholder avatar */}
+                <div
+                    className="h-14 w-14 rounded-full bg-purple-900 border-2 border-purple-500 flex items-center justify-center text-white text-lg font-bold flex-shrink-0"
+                    title={user.name}
+                >
+                    {initials}
                 </div>
             </>
         ) : (
@@ -131,8 +135,12 @@ export default function AppLayout({ children }) {
             <hr className="border-purple-800" />
             {user ? (
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-gray-200 overflow-hidden">
-                        <img src="/images/user.png" alt="User" className="h-full w-full object-cover" />
+                    {/* Initials placeholder avatar */}
+                    <div
+                        className="h-12 w-12 rounded-full bg-purple-900 border-2 border-purple-500 flex items-center justify-center text-white text-base font-bold flex-shrink-0"
+                        title={user.name}
+                    >
+                        {initials}
                     </div>
                     <span className="text-xl font-semibold">{user.name}</span>
                 </div>

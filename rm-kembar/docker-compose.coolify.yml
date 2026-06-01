@@ -1,0 +1,185 @@
+# ============================================================
+# docker-compose.coolify.yml — Coolify production deployment
+# ARM64 (e.g. Oracle Cloud Ampere / Raspberry Pi server)
+# ============================================================
+# HOW TO USE IN COOLIFY:
+#   Build Pack    : Docker Compose
+#   Base Directory: rm-kembar          (or wherever this file lives)
+#   Compose File  : /docker-compose.coolify.yml
+#   Domain        : Set under "Domains for webserver"
+# ============================================================
+
+services:
+  # ----------------------------------------------------------
+  # PHP-FPM application (built from Dockerfile.coolify)
+  # ----------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.coolify
+      platforms:
+        - linux/arm64
+    image: rmkembar-app-coolify
+    container_name: rmkembar-app
+    restart: unless-stopped
+    working_dir: /var/www
+    # No bind mounts — code is baked into the image
+    volumes:
+      - storage-data:/var/www/storage/app
+      - storage-logs:/var/www/storage/logs
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - APP_URL=${APP_URL}
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-rmkembar}
+      - DB_USERNAME=${DB_USERNAME:-rmkembar}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_STORE=database
+      - SESSION_DRIVER=database
+      - QUEUE_CONNECTION=database
+      - EVOLUTION_API_URL=${EVOLUTION_API_URL:-http://evolution-api:8080}
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+      - EVOLUTION_INSTANCE_NAME=${EVOLUTION_INSTANCE_NAME:-rmkembar}
+      - MIDTRANS_CLIENT_KEY=${MIDTRANS_CLIENT_KEY}
+      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
+      - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - rmkembar-network
+
+  # ----------------------------------------------------------
+  # Nginx webserver — Coolify/Traefik routes to THIS service
+  # Set your domain under "Domains for webserver" in Coolify
+  # ----------------------------------------------------------
+  webserver:
+    image: nginx:alpine
+    platform: linux/arm64
+    container_name: rmkembar-webserver
+    restart: unless-stopped
+    # No host port binding — Traefik handles external routing
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    # Must join BOTH the app network AND coolify's Traefik network
+    networks:
+      - rmkembar-network
+      - coolify
+    depends_on:
+      - app
+
+  # ----------------------------------------------------------
+  # MySQL 8.0 — ARM64 compatible
+  # ----------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    platform: linux/arm64
+    container_name: rmkembar-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-rmkembar}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-rmkembar}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rmkembar-network
+
+  # ----------------------------------------------------------
+  # Redis — session/cache/queue
+  # ----------------------------------------------------------
+  redis:
+    image: redis:alpine
+    platform: linux/arm64
+    container_name: rmkembar-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - rmkembar-network
+
+  # ----------------------------------------------------------
+  # Evolution API (WhatsApp) — check ARM64 support on DockerHub
+  # evoapicloud/evolution-api supports arm64 as of v2+
+  # ----------------------------------------------------------
+  evolution-api:
+    image: evoapicloud/evolution-api:latest
+    platform: linux/arm64
+    container_name: rmkembar-evolution
+    restart: unless-stopped
+    environment:
+      - SERVER_URL=${EVOLUTION_API_URL:-http://evolution-api:8080}
+      - DOCKER_ENV=true
+      - LOG_LEVEL=ERROR,WARN
+      - LOG_COLOR=true
+      - LOG_BAILEYS=error
+      - AUTHENTICATION_TYPE=apikey
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://postgres:postgres@evolution-postgres:5432/evolution?schema=public
+      - DATABASE_CONNECTION_CLIENT_NAME=evolution_api
+      - RABBITMQ_ENABLED=false
+      - WEBSOCKET_ENABLED=false
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://evolution-redis:6379
+      - CACHE_REDIS_PREFIX_KEY=evolution
+    networks:
+      - rmkembar-network
+    depends_on:
+      - evolution-postgres
+      - evolution-redis
+
+  evolution-postgres:
+    image: postgres:15-alpine
+    platform: linux/arm64
+    container_name: rmkembar-evolution-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=evolution
+      - TZ=Asia/Jakarta
+    volumes:
+      - evolution-postgres-data:/var/lib/postgresql/data
+    networks:
+      - rmkembar-network
+
+  evolution-redis:
+    image: redis:alpine
+    platform: linux/arm64
+    container_name: rmkembar-evolution-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - evolution-redis-data:/data
+    networks:
+      - rmkembar-network
+
+networks:
+  rmkembar-network:
+    driver: bridge
+  coolify:
+    external: true   # Coolify's built-in Traefik reverse-proxy network
+
+volumes:
+  mysql-data:
+  redis-data:
+  storage-data:      # persistent Laravel storage/app (uploads, etc.)
+  storage-logs:      # persistent Laravel logs
+  evolution-postgres-data:
+  evolution-redis-data:
