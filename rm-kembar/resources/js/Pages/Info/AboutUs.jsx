@@ -22,7 +22,7 @@ import {
   } from "lucide-react";
 
   
-  export default function App() {
+  export default function App({ story, vision }) {
     const features = [
       {
         icon: Leaf,
@@ -115,8 +115,8 @@ import {
         {/* Dark Purple Navbar */}
   
         {/* Hero Section */}
-        <section className="relative h-[500px] bg-gradient-to-r from-[#050B1A] to-[#10213D] overflow-hidden">
-          <div className="absolute inset-0 opacity-30">
+        <section className="relative h-[500px] bg-zinc-900 overflow-hidden">
+          <div className="absolute inset-0 opacity-40">
             <img
               src="/images/rumahSaya.png"
               alt="Restaurant Banner"
@@ -124,12 +124,12 @@ import {
             />
           </div>
           <div className="relative z-10 max-w-7xl mx-auto px-8 h-full flex flex-col justify-center items-center text-center text-white">
-            <h1 className="text-6xl mb-6">About Warung Makan Kembar</h1>
-            <p className="text-xl mb-8 max-w-2xl">
-              Authentic Indonesian Cuisine • Family Tradition Since 1985 • Premium Dining Experience
+            <h1 className="text-6xl mb-6 font-bold tracking-tight">Rumah Makan Kembar</h1>
+            <p className="text-xl mb-8 max-w-2xl font-medium">
+              Cita Rasa Autentik Nusantara • Resep Keluarga Sejak Lama • Pilihan Utama Makan Bersama
             </p>
-            <Link href="/menu" className="bg-gradient-to-r from-purple-500 to-blue-500 px-10 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
-              Explore Our Menu
+            <Link href="/menu" className="bg-red-700 text-white font-semibold px-10 py-4 rounded-full hover:shadow-2xl hover:bg-red-800 transform hover:scale-105 transition-all duration-300">
+              Lihat Menu Kami
             </Link>
           </div>
         </section>
@@ -148,21 +148,15 @@ import {
                 />
               </div>
               <div>
-                <h2 className="text-5xl text-gray-800 mb-6">Our Story</h2>
-                <p className="text-gray-600 text-lg leading-relaxed mb-4">
-                  Founded in 1985 by twin siblings who shared a passion for Indonesian culinary heritage,
-                  Warung Makan Kembar has been serving authentic traditional dishes for over 40 years.
-                </p>
-                <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                  Our commitment to quality, authenticity, and the warmth of Indonesian hospitality has
-                  made us a beloved destination for those seeking genuine Indonesian flavors.
-                </p>
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-100">
-                  <h3 className="text-2xl text-gray-800 mb-3">Our Vision & Mission</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    To preserve authentic Indonesian cuisine while providing exceptional dining experiences
-                    that make every guest feel like family.
-                  </p>
+                <h2 className="text-4xl font-bold text-zinc-900 mb-6">Cerita Kami</h2>
+                <div className="text-zinc-600 text-lg leading-relaxed mb-8 whitespace-pre-wrap">
+                  {story}
+                </div>
+                <div className="bg-zinc-100 p-8 rounded-2xl border border-zinc-200">
+                  <h3 className="text-2xl font-bold text-zinc-900 mb-3">Visi & Misi</h3>
+                  <div className="text-zinc-700 leading-relaxed whitespace-pre-wrap">
+                    {vision}
+                  </div>
                 </div>
               </div>
             </div>
@@ -178,10 +172,10 @@ import {
                 return (
                   <div
                     key={index}
-                    className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 border border-gray-100"
+                    className="bg-white rounded-3xl p-8 shadow-md hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border border-zinc-100"
                   >
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-5">
-                      <Icon className="w-8 h-8 text-white" />
+                    <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-5">
+                      <Icon className="w-8 h-8 text-red-700" />
                     </div>
                     <h3 className="text-2xl text-gray-800 mb-3">{feature.title}</h3>
                     <p className="text-gray-600 leading-relaxed">{feature.description}</p>
@@ -193,7 +187,7 @@ import {
   
           {/* Statistics Section */}
           <section className="mb-20">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl p-12 shadow-2xl">
+            <div className="bg-zinc-900 rounded-3xl p-12 shadow-2xl border-b-4 border-red-700">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {stats.map((stat, index) => {
                   const Icon = stat.icon;
@@ -224,9 +218,9 @@ import {
                     />
                   </div>
                   <div className="p-6 text-center">
-                    <h3 className="text-2xl text-gray-800 mb-2">{member.name}</h3>
-                    <p className="text-purple-600 mb-3">{member.role}</p>
-                    <p className="text-gray-600 text-sm">{member.description}</p>
+                    <h3 className="text-2xl font-bold text-zinc-900 mb-2">{member.name}</h3>
+                    <p className="text-red-700 font-semibold mb-3">{member.role}</p>
+                    <p className="text-zinc-600 text-sm">{member.description}</p>
                   </div>
                 </div>
               ))}
@@ -267,7 +261,7 @@ import {
                       backgroundSize: '30px 30px'
                     }}></div>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-full">
-                      <MapPin className="w-16 h-16 text-purple-600 fill-purple-600" />
+                      <MapPin className="w-16 h-16 text-red-700 fill-red-700" />
                     </div>
                     <div className="absolute right-4 top-4 bg-white rounded-lg shadow-md">
                       <button className="block p-2 hover:bg-gray-50 border-b">
@@ -283,29 +277,29 @@ import {
                   <h3 className="text-3xl text-gray-800 mb-6">Visit Us</h3>
                   <div className="space-y-4 mb-8">
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-6 h-6 text-purple-600 flex-shrink-0 mt-1" />
+                      <MapPin className="w-6 h-6 text-red-700 flex-shrink-0 mt-1" />
                       <div>
-                        <p className="text-gray-800">Jl. Sudirman No. 123</p>
-                        <p className="text-gray-600">Jakarta Pusat, DKI Jakarta 10110</p>
+                        <p className="text-zinc-900 font-medium">Jl. Pembangunan Raya No. 45</p>
+                        <p className="text-zinc-600">Jakarta Barat, DKI Jakarta</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Clock className="w-6 h-6 text-purple-600" />
-                      <p className="text-gray-800">Open Daily: 10:00 AM - 10:00 PM</p>
+                      <Clock className="w-6 h-6 text-red-700" />
+                      <p className="text-zinc-800">Buka Tiap Hari: 10:00 AM - 10:00 PM</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Phone className="w-6 h-6 text-purple-600" />
-                      <p className="text-gray-800">+62 21 1234 5678</p>
+                      <Phone className="w-6 h-6 text-red-700" />
+                      <p className="text-zinc-800">+62 812 3456 7890</p>
                     </div>
                   </div>
                   <a
-                    href="https://maps.google.com/?q=Warung+Makan+Kembar"
+                    href="https://maps.google.com/?q=Rumah+Makan+Kembar"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                    className="inline-flex items-center justify-center gap-3 bg-red-700 text-white font-semibold px-8 py-4 rounded-full hover:shadow-xl hover:bg-red-800 transform hover:scale-105 transition-all duration-300"
                   >
                     <MapPin className="w-5 h-5" />
-                    Open in Google Maps
+                    Buka di Google Maps
                   </a>
                 </div>
               </div>

@@ -22,11 +22,19 @@ export default function Settings({ settings }) {
                             {groupSettings.map((setting) => (
                                 <label key={setting.key} className="block text-sm font-medium">
                                     {setting.label}
-                                    <input
-                                        className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2"
-                                        value={data.settings?.[setting.key] ?? ''}
-                                        onChange={(e) => setData('settings', { ...data.settings, [setting.key]: e.target.value })}
-                                    />
+                                    {setting.type === 'text' ? (
+                                        <textarea
+                                            className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 min-h-[100px]"
+                                            value={data.settings?.[setting.key] ?? ''}
+                                            onChange={(e) => setData('settings', { ...data.settings, [setting.key]: e.target.value })}
+                                        />
+                                    ) : (
+                                        <input
+                                            className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2"
+                                            value={data.settings?.[setting.key] ?? ''}
+                                            onChange={(e) => setData('settings', { ...data.settings, [setting.key]: e.target.value })}
+                                        />
+                                    )}
                                     <span className="mt-1 block text-xs text-zinc-500">{setting.key} - {setting.type}</span>
                                 </label>
                             ))}

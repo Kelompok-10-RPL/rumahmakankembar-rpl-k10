@@ -28,7 +28,7 @@ class SettingController extends Controller
     {
         $values = $request->validate([
             'settings' => ['required', 'array'],
-            'settings.*' => ['nullable', 'string', 'max:255'],
+            'settings.*' => ['nullable', 'string'],
         ])['settings'];
 
         $settings = Setting::query()->whereIn('key', array_keys($values))->get();
@@ -48,6 +48,7 @@ class SettingController extends Controller
             'integer' => filter_var($value, FILTER_VALIDATE_INT) !== false,
             'float' => filter_var($value, FILTER_VALIDATE_FLOAT) !== false,
             'boolean' => in_array($value, ['0', '1', 'true', 'false'], true),
+            'text' => true,
             default => filled($value),
         };
 
