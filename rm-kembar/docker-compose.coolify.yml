@@ -60,16 +60,18 @@ services:
   # ----------------------------------------------------------
   # Nginx webserver — Coolify/Traefik routes to THIS service
   # Set your domain under "Domains for webserver" in Coolify
+  # nginx config + Vite assets are BAKED INTO the image.
   # ----------------------------------------------------------
   webserver:
-    image: nginx:alpine
-    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx.coolify
+      platforms:
+        - linux/arm64
     container_name: rmkembar-webserver
     restart: unless-stopped
-    # No host port binding — Traefik handles external routing
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    # Must join BOTH the app network AND coolify's Traefik network
+    # No bind mounts — config and assets are inside the image
+    # No host ports — Traefik handles external routing
     networks:
       - rmkembar-network
       - coolify
