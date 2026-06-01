@@ -39,10 +39,11 @@ else
     echo "    Database already has data (${USER_COUNT} users) — skipping seed."
 fi
 
-echo "==> Caching config & routes..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+echo "==> Optimizing Laravel (config + routes + views)..."
+php artisan optimize
+
+echo "==> Linking storage..."
+php artisan storage:link --force 2>/dev/null || true
 
 echo "==> Fixing storage permissions..."
 chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
