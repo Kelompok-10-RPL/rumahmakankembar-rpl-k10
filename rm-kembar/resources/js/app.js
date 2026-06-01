@@ -5,6 +5,9 @@ import { createInertiaApp } from '@inertiajs/react';
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 
+
+window.route = route;
+
 createInertiaApp({
     title: (title) => (title ? `${title} - RM Kembar` : 'RM Kembar'),
     resolve: (name) => {

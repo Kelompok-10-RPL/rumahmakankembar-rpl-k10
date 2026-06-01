@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Catering extends Model
 {
     use SoftDeletes;
-
+ 
     protected $guarded = [];
 
     protected $casts = [

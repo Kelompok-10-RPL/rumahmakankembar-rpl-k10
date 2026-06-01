@@ -2,7 +2,7 @@ import { Head, router, useForm } from '@inertiajs/react';
 import AdminLayout from '../../Layouts/AdminLayout';
 import { money } from '../../Layouts/AppLayout';
 
-const blank = { category_id: '', name: '', description: '', price: '', stock: 0, low_stock_threshold: 5, sort_order: 0, is_available: true, is_for_dine_in: true, is_for_catering: true };
+const blank = { category_id: '', name: '', description: '', price: '', stock: 0, low_stock_threshold: 5, sort_order: 0, image:null, is_available: true, is_for_dine_in: true, is_for_catering: true };
 
 export default function Menu({ menus, categories }) {
     return (
@@ -23,6 +23,7 @@ function MenuForm({ menu, categories }) {
         category_id: menu.category_id,
         name: menu.name,
         description: menu.description || '',
+        image:null,
         price: menu.price,
         stock: menu.stock,
         low_stock_threshold: menu.low_stock_threshold || 5,
@@ -34,7 +35,19 @@ function MenuForm({ menu, categories }) {
 
     function submit(e) {
         e.preventDefault();
-        isEdit ? put(`/admin/menu/${menu.id}`, { preserveScroll: true }) : post('/admin/menu', { preserveScroll: true, onSuccess: () => reset() });
+    
+        if (isEdit) {
+            put(`/admin/menu/${menu.id}`, {
+                preserveScroll: true,
+                forceFormData: true,
+            });
+        } else {
+            post('/admin/menu', {
+                preserveScroll: true,
+                forceFormData: true,
+                onSuccess: () => reset(),
+            });
+        }
     }
 
     return (
@@ -43,6 +56,14 @@ function MenuForm({ menu, categories }) {
                 <h2 className="font-bold">{isEdit ? menu.name : 'Tambah menu'}</h2>
                 {isEdit && <span className="text-sm font-semibold text-red-700">{money(menu.price)}</span>}
             </div>
+
+            {isEdit && menu.image && (
+    <img
+        src={`/storage/${menu.image}`}
+        alt={menu.name}
+        className="mb-3 h-32 w-32 rounded-md object-cover"
+    />
+)}
             <div className="grid gap-3 md:grid-cols-4">
                 <select className="rounded-md border border-zinc-300 px-3 py-2" value={data.category_id} onChange={(e) => setData('category_id', e.target.value)} required>
                     {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
@@ -51,6 +72,8 @@ function MenuForm({ menu, categories }) {
                 <input className="rounded-md border border-zinc-300 px-3 py-2" type="number" min="0" value={data.price} onChange={(e) => setData('price', e.target.value)} placeholder="Harga" required />
                 <input className="rounded-md border border-zinc-300 px-3 py-2" type="number" min="0" value={data.stock} onChange={(e) => setData('stock', e.target.value)} placeholder="Stok" required />
                 <textarea className="rounded-md border border-zinc-300 px-3 py-2 md:col-span-2" value={data.description} onChange={(e) => setData('description', e.target.value)} placeholder="Deskripsi" />
+                <input type="file" accept="image/*" className="rounded-md border border-zinc-300 px-3 py-2" onChange={(e) => setData('image', e.target.files[0])}
+/>
                 <input className="rounded-md border border-zinc-300 px-3 py-2" type="number" min="0" value={data.low_stock_threshold} onChange={(e) => setData('low_stock_threshold', e.target.value)} placeholder="Batas stok rendah" />
                 <input className="rounded-md border border-zinc-300 px-3 py-2" type="number" value={data.sort_order} onChange={(e) => setData('sort_order', e.target.value)} placeholder="Urutan" />
                 {['is_available', 'is_for_dine_in', 'is_for_catering'].map((key) => <label key={key} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(data[key])} onChange={(e) => setData(key, e.target.checked)} /> {key.replace('is_', '').replaceAll('_', ' ')}</label>)}

@@ -83,6 +83,15 @@ function MenuCard({ menu, selectedTable }) {
 
     return (
         <article className="rounded-md border border-zinc-200 bg-white p-4">
+            {menu.image && (
+        <img
+            src={`/storage/${menu.image}`}
+            alt={menu.name}
+            className="h-48 w-full object-cover"
+        />
+    )}
+
+    <div className="p-4">
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <p className="text-xs font-semibold uppercase text-zinc-500">{menu.category?.name}</p>
@@ -101,6 +110,7 @@ function MenuCard({ menu, selectedTable }) {
                 </div>
                 <button disabled={unavailable || processing} className="rounded-md bg-red-700 px-4 py-2 font-semibold text-white disabled:bg-zinc-300">Tambah</button>
             </form>
+            </div>
         </article>
     );
 }
