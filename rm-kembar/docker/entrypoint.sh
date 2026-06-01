@@ -22,6 +22,23 @@ echo "==> MySQL is ready."
 echo "==> Running migrations..."
 php artisan migrate --force
 
+echo "==> Seeding database (only on fresh install)..."
+USER_COUNT=$(php -r "
+    \$pdo = new PDO(
+        'mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'),
+        getenv('DB_USERNAME'),
+        getenv('DB_PASSWORD')
+    );
+    echo \$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
+")
+if [ "$USER_COUNT" -eq "0" ]; then
+    echo "    Fresh database detected — running seeders..."
+    php artisan db:seed --force
+    echo "    Seeding complete."
+else
+    echo "    Database already has data (${USER_COUNT} users) — skipping seed."
+fi
+
 echo "==> Caching config & routes..."
 php artisan config:cache
 php artisan route:cache
