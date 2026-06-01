@@ -52,6 +52,7 @@ export default function Confirm({ order }) {
                                 >
                                     Bayar Sekarang
                                 </button>
+                            )}
                         </div>
                     )}
                 </div>
