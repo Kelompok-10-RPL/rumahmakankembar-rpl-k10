@@ -72,6 +72,8 @@ services:
     restart: unless-stopped
     # No bind mounts — config and assets are inside the image
     # No host ports — Traefik handles external routing
+    volumes:
+      - storage-data:/var/www/storage/app
     networks:
       - rmkembar-network
       - coolify
