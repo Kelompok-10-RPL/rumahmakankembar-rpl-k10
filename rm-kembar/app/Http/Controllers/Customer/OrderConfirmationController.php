@@ -28,6 +28,14 @@ class OrderConfirmationController extends Controller
             ]);
             $order->payments()->latest()->first()?->update(['status' => 'paid']);
             event(new \App\Events\KitchenOrderUpdated($order));
+            
+            if ($order->user && $order->user->phone) {
+                $message = "Pembayaran untuk pesanan *{$order->unique_code}* berhasil diterima.\nStatus pesanan sekarang sedang disiapkan di dapur.";
+                dispatch(function () use ($order, $message) {
+                    \App\Services\WhatsAppService::sendMessage($order->user->phone, $message);
+                })->afterResponse();
+            }
+
             $order->refresh();
         }
 
