@@ -13,7 +13,7 @@ class OrderConfirmationController extends Controller
     public function __invoke(Request $request, string $code): Response
     {
         $order = Order::query()
-            ->with(['items', 'table', 'payments'])
+            ->with(['items', 'table', 'payments', 'rating'])
             ->where('unique_code', $code)
             ->firstOrFail();
 
