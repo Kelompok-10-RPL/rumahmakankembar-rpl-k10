@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Catering;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Menu;
@@ -31,6 +32,7 @@ class CateringController extends Controller
         return Inertia::render('Catering/CateringForm', [
             'selectedPackage' => $selectedPackage,
             'menuItems' => Menu::where('is_available', 1)->get(),
+            'order' => session('order'),
         ]);
     }
 
@@ -39,26 +41,33 @@ class CateringController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+        $catering = Catering::create([
+            'unique_code'       => 'CAT-' . strtoupper(Str::random(8)),
+            'user_id'           => Auth::id() ?? 1,
 
-        $order = \App\Models\Order::create([
-            'unique_code' => 'ORD-' . strtoupper(\Illuminate\Support\Str::random(8)),
-            'user_id' => 1,
-            'package_id' => $request->package_id,
-            'qty' => $request->qty,
-            'total_price' => $request->total_price,
-            'status' => 'pending',
+            'event_date'        => $request->event_date,
+            'event_time'        => $request->event_time,
+            'delivery_address'  => $request->event_address,
 
-            'event_name' => $request->event_name,
-            'event_date' => $request->event_date,
-            'event_time' => $request->event_time,
-            'event_address' => $request->event_address,
+            'guest_count'       => $request->qty,
 
-            'add_ons' => json_encode($request->add_ons),
+            'subtotal'          => $request->total_price,
+            'total_price'       => $request->total_price,
+
+            'payment_status'    => 'pending',
+            'status'            => 'pending',
+
+            'notes' => json_encode([
+                'event_name' => $request->event_name,
+                'package_id' => $request->package_id,
+                'add_ons'    => $request->add_ons,
+            ]),
         ]);
 
-        return back()->with([
-            'order' => $order
+            return redirect()->route('catering.create', $request->package_id)->with('order', [
+            'id' => $catering->id,
+            'unique_code' => $catering->unique_code,
+            'total_price' => $catering->total_price,
         ]);
     }
 }

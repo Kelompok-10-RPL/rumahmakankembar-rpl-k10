@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { CheckCircle } from 'lucide-react';
 import AppLayout, { money } from '../../Layouts/AppLayout';
 
-export default function CateringForm({ selectedPackage }) {
+export default function CateringForm({ selectedPackage, order }) {
+  console.log(selectedPackage);
+  console.log("ORDER:", order);
   const [currentStep, setCurrentStep] = useState(1);
   const [qty, setQty] = useState(15);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
   const [orderResult, setOrderResult] = useState(null);
+
+  useEffect(() => {
+    if (order) {
+      setOrderResult(order);
+      setCurrentStep(4);
+    }
+  }, [order]);
 
   // ADD-ONS
   const addOns = [
@@ -34,6 +43,9 @@ export default function CateringForm({ selectedPackage }) {
     event_date: '',
     event_time: '',
     event_address: '',
+    qty: 15,
+    add_ons: [],
+    total_price: 0,
   });
 
   // PRICE
@@ -52,24 +64,23 @@ export default function CateringForm({ selectedPackage }) {
   const totalPrice = (perPax * qty) + boxFee + shippingFee;
 
   const isValid = qty >= 15;
+  const isStep1Valid =
+  data.event_name.trim() !== '' &&
+  data.event_date !== '' &&
+  data.event_time !== '' &&
+  data.event_address.trim() !== '';
 
   // SUBMIT + SIMPAN ORDER
   const handlePay = (e) => {
     e.preventDefault();
-
-    post(route('catering.store'), {
-      data: {
-        ...data,
-        qty,
-        add_ons: selectedAddOns,
-        total_price: totalPrice
-      },
-      onSuccess: (page) => {
-        const order = page.props.order || { id: Date.now() };
-        setOrderResult(order);
-        setCurrentStep(4);
-      }
-    });
+  
+    setData('qty', qty);
+    setData('add_ons', selectedAddOns);
+    setData('total_price', totalPrice);
+  
+    setTimeout(() => {
+      post('/catering/store');
+    }, 100);
   };
 
   return (
@@ -123,7 +134,12 @@ export default function CateringForm({ selectedPackage }) {
                   <button
                     type="button"
                     onClick={() => setCurrentStep(2)}
-                    className="bg-red-600 text-white px-6 py-2 rounded-xl"
+                    disabled={!isStep1Valid}
+                    className={`px-6 py-2 rounded-xl text-white ${
+                      isStep1Valid
+                        ? 'bg-red-600 hover:bg-red-700'
+                        : 'bg-gray-400 cursor-not-allowed'
+                    }`}
                   >
                     Lanjut
                   </button>
@@ -231,26 +247,56 @@ export default function CateringForm({ selectedPackage }) {
 
             {/* STEP 4 - QR PAYMENT */}
             {currentStep === 4 && orderResult && (
-              <div className="text-center space-y-4 py-6">
+  <div className="text-center space-y-4 py-6">
 
-                <CheckCircle className="mx-auto w-14 h-14 text-green-600" />
+    <CheckCircle className="mx-auto w-14 h-14 text-green-600" />
 
-                <h2 className="text-xl sm:text-2xl font-bold">
-                  Scan QRIS Pembayaran
-                </h2>
+    <h2 className="text-xl sm:text-2xl font-bold text-green-600">
+      Pesanan Berhasil Dibuat
+    </h2>
 
-                <img
-                  className="mx-auto"
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=ORDER-${orderResult.id}`}
-                  alt="QRIS"
-                />
+    <p className="text-gray-600">
+      Silakan scan QRIS untuk melakukan pembayaran
+    </p>
 
-                <p className="font-bold text-red-600 text-lg">
-                  Total: {money(totalPrice)}
-                </p>
+    <img
+      className="mx-auto"
+      src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=ORDER-${orderResult.id}`}
+      alt="QRIS"
+    />
 
-              </div>
-            )}
+    <p className="font-medium">
+      Kode Pesanan: {orderResult.unique_code}
+    </p>
+
+    <p className="font-bold text-red-600 text-lg">
+      Total: {money(orderResult.total_price)}
+    </p>
+
+    <div className="pt-4">
+      <button
+        onClick={() => {
+          setCurrentStep(1);
+          setOrderResult(null);
+          setQty(15);
+          setSelectedAddOns([]);
+
+          setData({
+            package_id: selectedPackage?.id || null,
+            event_name: '',
+            event_date: '',
+            event_time: '',
+            event_address: '',
+          });
+        }}
+        className="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700"
+      >
+        Buat Pesanan Baru
+      </button>
+    </div>
+
+  </div>
+)}
 
           </form>
 
