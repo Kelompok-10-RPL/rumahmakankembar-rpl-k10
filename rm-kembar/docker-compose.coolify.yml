@@ -163,8 +163,15 @@ services:
     platform: linux/arm64
     container_name: rmkembar-evolution
     restart: unless-stopped
+    # Tell Traefik/Coolify to route to port 8080 (not default 80)
+    expose:
+      - "8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.evolution-api.loadbalancer.server.port=8080"
     environment:
-      - SERVER_URL=${EVOLUTION_API_URL:-http://evolution-api:8080}
+      # SERVER_URL must be the PUBLIC URL so WhatsApp webhooks reach this server
+      - SERVER_URL=${EVOLUTION_API_URL:-https://evolution-api-2.ilhem.eu.org}
       - DOCKER_ENV=true
       - LOG_LEVEL=ERROR,WARN
       - LOG_COLOR=true
@@ -180,9 +187,12 @@ services:
       - CACHE_REDIS_ENABLED=true
       - CACHE_REDIS_URI=redis://evolution-redis:6379
       - CACHE_REDIS_PREFIX_KEY=evolution
+    # Persist WhatsApp session — survives container restarts/redeploys
+    volumes:
+      - evolution-instances:/evolution/instances
     networks:
       - rmkembar-network
-      - coolify        
+      - coolify
     depends_on:
       - evolution-postgres
       - evolution-redis
@@ -226,3 +236,4 @@ volumes:
   storage-logs:      # persistent Laravel logs
   evolution-postgres-data:
   evolution-redis-data:
+  evolution-instances:  # WhatsApp session — persists across restarts
