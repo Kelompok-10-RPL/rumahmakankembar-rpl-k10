@@ -56,6 +56,9 @@ class MenuController extends Controller
             }
             $path = $request->file('image')->store('menus', 'public');
             $data['image'] = '/storage/' . $path;
+        } else {
+            // No new image uploaded — preserve the existing one
+            unset($data['image']);
         }
 
         $menu->update($data);

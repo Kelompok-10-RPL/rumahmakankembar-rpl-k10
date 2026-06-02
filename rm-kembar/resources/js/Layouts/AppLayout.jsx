@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link, usePage } from '@inertiajs/react';
-import { ChefHat, Phone, Mail, MapPin, Menu as MenuIcon, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Link, usePage, router } from '@inertiajs/react';
+import { ChefHat, Phone, Mail, MapPin, Menu as MenuIcon, X, ChevronDown } from 'lucide-react';
 
 export function money(value) {
     return new Intl.NumberFormat('id-ID', {
@@ -18,6 +18,19 @@ export default function AppLayout({ children }) {
     const { auth, flash, errors } = usePage().props;
     const user = auth?.user;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const userMenuRef = useRef(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClick(e) {
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+                setIsUserMenuOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, []);
 
     const initials = user?.name
         ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
@@ -94,34 +107,42 @@ export default function AppLayout({ children }) {
     <div className="hidden md:flex items-center gap-4">
 
         {user ? (
-            <>
-                <span className="text-2xl font-semibold">
-                    {user.name}
-                </span>
-
-                {/* Initials placeholder avatar */}
-                <div
-                    className="h-14 w-14 rounded-full bg-purple-900 border-2 border-purple-500 flex items-center justify-center text-white text-lg font-bold flex-shrink-0"
-                    title={user.name}
+            <div className="relative" ref={userMenuRef}>
+                <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-3 hover:opacity-80 transition"
                 >
-                    {initials}
-                </div>
-            </>
+                    <span className="text-2xl font-semibold">{user.name}</span>
+                    <div className="h-14 w-14 rounded-full bg-purple-900 border-2 border-purple-500 flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
+                        {initials}
+                    </div>
+                    <ChevronDown size={16} className={`transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown */}
+                {isUserMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-52 rounded-md border border-purple-800 bg-[#1e0040] shadow-xl z-50">
+                        <Link
+                            href="/akun/riwayat"
+                            className="block px-4 py-3 text-sm font-semibold hover:bg-purple-900 transition"
+                            onClick={() => setIsUserMenuOpen(false)}
+                        >
+                            📋 Riwayat Pesanan
+                        </Link>
+                        <hr className="border-purple-800" />
+                        <button
+                            onClick={() => { router.post('/logout'); setIsUserMenuOpen(false); }}
+                            className="block w-full text-left px-4 py-3 text-sm font-semibold text-red-400 hover:bg-purple-900 transition"
+                        >
+                            🚪 Keluar
+                        </button>
+                    </div>
+                )}
+            </div>
         ) : (
             <>
-                <Link
-                    href="/login"
-                    className="text-xl font-semibold hover:text-red-400"
-                >
-                    Masuk
-                </Link>
-
-                <Link
-                    href="/register"
-                    className="rounded-full bg-red-600 px-5 py-2 text-lg font-semibold hover:bg-red-700"
-                >
-                    Daftar
-                </Link>
+                <Link href="/login" className="text-xl font-semibold hover:text-red-400">Masuk</Link>
+                <Link href="/register" className="rounded-full bg-red-600 px-5 py-2 text-lg font-semibold hover:bg-red-700">Daftar</Link>
             </>
         )}
 
@@ -146,15 +167,15 @@ export default function AppLayout({ children }) {
             )}
             <hr className="border-purple-800" />
             {user ? (
-                <div className="flex items-center gap-3">
-                    {/* Initials placeholder avatar */}
-                    <div
-                        className="h-12 w-12 rounded-full bg-purple-900 border-2 border-purple-500 flex items-center justify-center text-white text-base font-bold flex-shrink-0"
-                        title={user.name}
-                    >
-                        {initials}
+                <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-full bg-purple-900 border-2 border-purple-500 flex items-center justify-center text-white text-base font-bold flex-shrink-0">
+                            {initials}
+                        </div>
+                        <span className="text-xl font-semibold">{user.name}</span>
                     </div>
-                    <span className="text-xl font-semibold">{user.name}</span>
+                    <Link href="/akun/riwayat" className="text-lg font-semibold hover:text-red-400" onClick={() => setIsMobileMenuOpen(false)}>📋 Riwayat Pesanan</Link>
+                    <button onClick={() => { router.post('/logout'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-semibold text-red-400 hover:text-red-300">🚪 Keluar</button>
                 </div>
             ) : (
                 <div className="flex flex-col gap-3">

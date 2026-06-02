@@ -118,6 +118,53 @@ services:
       - rmkembar-network
 
   # ----------------------------------------------------------
+  # Laravel Reverb — WebSocket server (real-time order status)
+  # Coolify routes wss://<domain>/app/* to this container
+  # ----------------------------------------------------------
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile.coolify
+      platforms:
+        - linux/arm64
+    image: rmkembar-app-coolify
+    container_name: rmkembar-reverb
+    restart: unless-stopped
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080", "--no-interaction"]
+    expose:
+      - "8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.rmkembar-reverb.loadbalancer.server.port=8080"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - APP_URL=${APP_URL}
+      - REVERB_APP_ID=${REVERB_APP_ID}
+      - REVERB_APP_KEY=${REVERB_APP_KEY}
+      - REVERB_APP_SECRET=${REVERB_APP_SECRET}
+      - REVERB_HOST=0.0.0.0
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-rmkembar}
+      - DB_USERNAME=${DB_USERNAME:-rmkembar}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BROADCAST_CONNECTION=reverb
+      - QUEUE_CONNECTION=redis
+    depends_on:
+      - app
+      - redis
+    networks:
+      - rmkembar-network
+      - coolify
+
+  # ----------------------------------------------------------
   # MySQL 8.0 — ARM64 compatible
   # ----------------------------------------------------------
   mysql:

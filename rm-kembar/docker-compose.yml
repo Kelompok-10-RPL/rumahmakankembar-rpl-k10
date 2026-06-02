@@ -15,6 +15,22 @@ services:
     networks:
       - rmkembar-network
 
+  reverb:
+    image: rmkembar-app
+    container_name: rmkembar-reverb
+    restart: unless-stopped
+    working_dir: /var/www
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080", "--no-interaction"]
+    ports:
+      - "6001:8080"
+    volumes:
+      - ./:/var/www
+      - rmkembar-vendor:/var/www/vendor
+    depends_on:
+      - app
+    networks:
+      - rmkembar-network
+
   webserver:
     image: nginx:alpine
     container_name: rmkembar-webserver
