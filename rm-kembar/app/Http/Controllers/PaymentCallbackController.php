@@ -33,7 +33,11 @@ class PaymentCallbackController extends Controller
             if ($payment) {
                 $payment->update(['status' => 'paid']);
             }
-            $order->update(['payment_status' => 'paid']);
+            $order->update([
+                'payment_status' => 'paid',
+                'status' => 'paid_waiting'
+            ]);
+            event(new \App\Events\KitchenOrderUpdated($order));
         } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
             if ($payment) {
                 $payment->update(['status' => 'failed']);

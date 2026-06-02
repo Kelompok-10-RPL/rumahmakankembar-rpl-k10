@@ -22,8 +22,12 @@ class OrderConfirmationController extends Controller
         // even if the server-side webhook hasn't arrived yet.
         $transactionStatus = $request->query('transaction_status');
         if (in_array($transactionStatus, ['settlement', 'capture']) && $order->payment_status !== 'paid') {
-            $order->update(['payment_status' => 'paid']);
+            $order->update([
+                'payment_status' => 'paid',
+                'status' => 'paid_waiting'
+            ]);
             $order->payments()->latest()->first()?->update(['status' => 'paid']);
+            event(new \App\Events\KitchenOrderUpdated($order));
             $order->refresh();
         }
 
